@@ -5,20 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ar Condicionado de Conforto vs Precisão</title>
+
+    <!-- Ícone e estilos -->
     <link rel="shortcut icon" href="Imagens/Logo_redes_1.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
+
+    <!-- Bibliotecas e scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
 </head>
 
 <body>
+
+    <!-- Cabeçalho -->
     <header>
-        <img src="Imagens/LogoRedes.webp" alt="">
+        <img src="Imagens/LogoRedes.webp" alt="Logo Redes Tecnologia">
     </header>
+
+    <!-- Conteúdo principal -->
     <div class="container">
 
-        <!-- Titulo -->
+        <!-- Título e Mensagens -->
         <div class="summary-card">
-
             <div class="titulo">
                 <h1>Viabilidade Econômica:</h1>
                 <p>Ar-Condicionado de Conforto vs Precisão</p>
@@ -28,25 +36,27 @@
                 <p>Dimensionando equipamentos com a IA... Por favor, aguarde.</p>
                 <div id="loading-animation" class="spinner" style="display: none;"></div>
             </div>
+
             <div id="error-message" style="display: none; color: red; text-align:center; padding: 20px;">
                 <p>Ocorreu um erro. Verifique os dados e tente novamente.</p>
             </div>
         </div>
 
-        <!-- Abas -->
+        <!-- Navegação por Abas -->
         <div class="tabs">
 
+            <!-- Botões das Abas -->
             <div class="tab-nav">
-                <button id="button-parametros" class="tab-button active"
-                    onclick="showTab('parametros')">Parâmetros</button>
+                <button id="button-parametros" class="tab-button active" onclick="showTab('parametros')">Parâmetros</button>
                 <button id="button-calculos" class="tab-button" onclick="showTab('calculos')">Cálculos</button>
                 <button id="button-resultados" class="tab-button" onclick="showTab('resultados')">Resultados</button>
                 <button id="button-graficos" class="tab-button" onclick="showTab('graficos')">Gráficos</button>
             </div>
 
-            <!-- Parâmetros Tab -->
+            <!-- Aba: Parâmetros -->
             <div id="parametros" class="tab-content active">
                 <div class="form-grid">
+
                     <!-- Dados do Ambiente -->
                     <div class="form-section">
                         <h3>Dados do Ambiente</h3>
@@ -61,6 +71,7 @@
                                 <input type="number" id="pe-direito" placeholder="3,0" step="0.1">
                             </div>
                         </div>
+
                         <h3>Cargas Térmicas</h3>
                         <p>Fontes de calor no ambiente (kW)</p>
                         <div class="form-row">
@@ -74,6 +85,7 @@
                             </div>
                         </div>
                     </div>
+
                     <!-- Operação -->
                     <div class="form-section">
                         <h3>Operação</h3>
@@ -95,20 +107,21 @@
                             </div>
                         </div>
 
-                        <p>Se você não souber o valor do kWh, tudo bem! </p>
+                        <p>Se você não souber o valor do kWh, tudo bem!</p>
                         <p>Usaremos o valor médio do Brasil para continuar os cálculos.</p>
                     </div>
                 </div>
+
                 <button class="calculate-btn" onclick="calcularTCO()">Calcular</button>
             </div>
 
-            <!-- Cálculos Tab -->
+            <!-- Aba: Cálculos -->
             <div id="calculos" class="tab-content">
                 <div class="calculos-content">
+
+                    <!-- Resultados de Cálculo Térmico -->
                     <div class="result-card">
-
-                        <h3 style="color: rgb(0, 0, 0);">Cálculos térmicos</h3>
-
+                        <h3>Cálculos térmicos</h3>
                         <div class="result-values">
                             <span class="result-paramter">Carga térmica total:</span>
                             <span id="carga-termica" class="result-value">-- Kw</span>
@@ -116,7 +129,7 @@
                             <span class="result-paramter">Carga com segurança (20%):</span>
                             <span id="carga-seguranca" class="result-value">-- Kw</span>
                         </div>
-                        <hr style="margin: 30px 0 20px 0;">
+                        <hr>
                         <div class="result-final">
                             <span class="result-paramter">Capacidade necessária (conforto):</span>
                             <span id="carga-conforto" class="result-value">-- BTUS</span>
@@ -124,12 +137,11 @@
                             <span class="result-paramter">Capacidade necessária (precisão):</span>
                             <span id="carga-precisao" class="result-value">-- BTUS</span>
                         </div>
-
                     </div>
 
+                    <!-- Dimenssionamento -->
                     <div class="result-card">
-
-                        <h3 style="color: rgb(0, 0, 0);">Dimenssionamento</h3>
+                        <h3>Dimenssionamento</h3>
 
                         <h4 style="color: rgb(52, 110, 216);">Ar condicionado de conforto</h4>
                         <div class="result-values">
@@ -143,7 +155,8 @@
                             <span id="potencia-media-conforto" class="result-value">--</span>
                         </div>
                         <hr>
-                        <h4 style="color: rgb(16, 223, 16);">Ar condicionado de precisão</h4>
+
+                        <h4 style="color: rgb(16, 223, 16);" >Ar condicionado de precisão</h4>
                         <div class="result-values">
                             <span class="result-paramter">Quantidade:</span>
                             <span id="quantidade-precisao" class="result-value">--</span>
@@ -154,38 +167,28 @@
                             <span class="result-paramter">Potência média:</span>
                             <span id="potencia-media-precisao" class="result-value">--</span>
                         </div>
-
-
                     </div>
-
-
                 </div>
 
+                <!-- Aviso -->
                 <div class="disclaimer-box">
                     <h4>⚠️ Aviso Importante</h4>
-                    <p style="margin-bottom: 10px;">
-                        Os resultados apresentados neste simulador são estimativas baseadas nos dados fornecidos. Embora
-                        os cálculos reflitam práticas comuns do mercado, os valores são apenas aproximados.
-                    </p>
-                    <p>
-                        Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
-                        uma avaliação técnica detalhada com profissionais qualificados. Entre em contato conosco e <a
-                            href="https://redestecnologia.com.br/whatsapp/" target="_blank" rel="noopener noreferrer">solicite uma avaliação</a>
-                    </p>
-
-                   
+                    <p>Os resultados apresentados neste simulador são estimativas baseadas nos dados fornecidos. Embora
+                        os cálculos reflitam práticas comuns do mercado, os valores são apenas aproximados.</p>
+                    <p>Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
+                        uma avaliação técnica detalhada com profissionais qualificados. <a
+                            href="https://redestecnologia.com.br/whatsapp/" target="_blank"
+                            rel="noopener noreferrer">Solicite uma avaliação</a></p>
                 </div>
             </div>
 
-            <!-- Resultados Tab -->
+            <!-- Aba: Resultados -->
             <div id="resultados" class="tab-content">
-
                 <div class="results-grid">
 
+                    <!-- Conforto -->
                     <div class="result-card">
-
                         <h3 style="color: rgb(52, 110, 216);">Ar Condicionado de Conforto</h3>
-
                         <h4 style="color: rgb(52, 110, 216);">Investimento</h4>
                         <div class="result-values">
                             <span class="result-paramter">Equipamentos:</span>
@@ -200,7 +203,7 @@
                             <span id="invest-conforto" class="result-value">R$--,--</span>
                         </div>
 
-                        <h4 style="color: rgb(52, 110, 216); margin-top: 50px;">Custos de Operação Mensal</h4>
+                        <h4 style="margin-top: 50px; color: rgb(52, 110, 216);">Custos de Operação Mensal</h4>
                         <div class="result-values">
                             <span class="result-paramter">Energia:</span>
                             <span id="energia-conforto" class="result-value">R$--,--</span>
@@ -215,10 +218,9 @@
                         </div>
                     </div>
 
+                    <!-- Precisão -->
                     <div class="result-card">
-
                         <h3 style="color: rgb(16, 223, 16);">Ar Condicionado de Precisão</h3>
-
                         <h4 style="color: rgb(16, 223, 16);">Investimento</h4>
                         <div class="result-values">
                             <span class="result-paramter">Equipamentos:</span>
@@ -226,7 +228,6 @@
 
                             <span class="result-paramter">Instalação:</span>
                             <span id="instalacao-precisao" class="result-value">R$--,--</span>
-
                         </div>
                         <hr>
                         <div class="result-final">
@@ -234,7 +235,7 @@
                             <span id="invest-precisao" class="result-value">R$--,--</span>
                         </div>
 
-                        <h4 style="color: rgb(16, 223, 16); margin-top: 50px;">Custos de Operação Mensal</h4>
+                        <h4 style="margin-top: 50px; color: rgb(16, 223, 16);">Custos de Operação Mensal</h4>
                         <div class="result-values">
                             <span class="result-paramter">Energia:</span>
                             <span id="energia-precisao" class="result-value">R$--,--</span>
@@ -248,59 +249,46 @@
                             <span id="custo-mensal-precisao" class="result-value">R$--,--</span>
                         </div>
                     </div>
-
                 </div>
 
-
-
+                <!-- Métricas Financeiras -->
                 <div class="apresentacao-resultados">
-                    <h2>Análise Financeira</h3>
-                        <h3>Com ar condicionado de precisão
-                    </h2>
-
+                    <h2>Análise Financeira</h2>
+                    <h3>Com ar condicionado de precisão</h3>
 
                     <div class="summary-metrics">
-
                         <div class="metric">
                             <div class="metric-label">Investimento Adicional</div>
                             <div class="metric-value red" id="investimento-adicional">R$ ---</div>
                         </div>
-
                         <div class="metric">
                             <div class="metric-label">Economia Anual</div>
                             <div class="metric-value green" id="economia-anual">R$ ---</div>
                         </div>
-
                         <div class="metric">
                             <div class="metric-label">Payback</div>
                             <div class="metric-value blue" id="payback"> --- ANOS</div>
                         </div>
-
                         <div class="metric">
                             <div class="metric-label">ROI (10 Anos)</div>
                             <div class="metric-value purple" id="roi"> --- %</div>
                         </div>
-
                     </div>
                 </div>
 
+                <!-- Aviso -->
                 <div class="disclaimer-box">
                     <h4>⚠️ Aviso Importante</h4>
-                    <p style="margin-bottom: 10px;">
-                        Os resultados apresentados neste simulador são estimativas baseadas nos dados fornecidos. Embora
-                        os cálculos reflitam práticas comuns do mercado, os valores são apenas aproximados.
-                    </p>
-                    <p>
-                        Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
-                        uma avaliação técnica detalhada com profissionais qualificados. Entre em contato conosco e <a
-                            href="https://redestecnologia.com.br/whatsapp/" target="_blank" rel="noopener noreferrer">solicite uma
-                            avaliação</a>
-                    </p>
+                    <p>Os resultados apresentados neste simulador são estimativas baseadas nos dados fornecidos. Embora
+                        os cálculos reflitam práticas comuns do mercado, os valores são apenas aproximados.</p>
+                    <p>Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
+                        uma avaliação técnica detalhada com profissionais qualificados. <a
+                            href="https://redestecnologia.com.br/whatsapp/" target="_blank"
+                            rel="noopener noreferrer">Solicite uma avaliação</a></p>
                 </div>
             </div>
 
-
-            <!-- Gráficos Tab -->
+            <!-- Aba: Gráficos -->
             <div id="graficos" class="tab-content">
                 <div class="chart-container">
                     <canvas id="tcoChart"></canvas>
@@ -310,472 +298,22 @@
                     <canvas id="grafico-economia"></canvas>
                 </div>
 
+                <!-- Aviso -->
                 <div class="disclaimer-box">
                     <h4>⚠️ Aviso Importante</h4>
-                    <p style="margin-bottom: 10px;">
-                        Os resultados apresentados neste simulador são estimativas baseadas nos dados fornecidos. Embora
-                        os cálculos reflitam práticas comuns do mercado, os valores são apenas aproximados.
-                    </p>
-                    <p>
-                        Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
-                        uma avaliação técnica detalhada com profissionais qualificados. Entre em contato conosco e <a
-                            href="https://redestecnologia.com.br/whatsapp/" target="_blank" rel="noopener noreferrer">solicite uma
-                            avaliação</a>
-                    </p>
+                    <p>Os resultados apresentados neste simulador são estimativas baseadas nos dados fornecidos. Embora
+                        os cálculos reflitam práticas comuns do mercado, os valores são apenas aproximados.</p>
+                    <p>Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
+                        uma avaliação técnica detalhada com profissionais qualificados. <a
+                            href="https://redestecnologia.com.br/whatsapp/" target="_blank"
+                            rel="noopener noreferrer">Solicite uma avaliação</a></p>
                 </div>
-
             </div>
-        </div>
 
-    </div>
+        </div> <!-- Fim das Abas -->
 
+    </div> <!-- Fim do Container -->
 
-
-    <script>
-        // --- CONFIGURAÇÕES E CONSTANTES ---
-        // ATENÇÃO: A CHAVE DE API NÃO DEVE FICAR AQUI EM PRODUÇÃO!
-        // Idealmente, esta chamada deve ser feita por um backend.
-        const API_KEY = 'AIzaSyCAibA7S74hsrAgufalOZ_djkP_J5uijno'; // Substitua pela sua chave, mas lembre-se do risco de segurança.
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-
-        // Fatores de cálculo
-        const WATTS_POR_PESSOA = 175;
-        const WATTS_ILUMINACAO_POR_M2 = 20;
-        const FATOR_TROCA_AR = 3.025 + 3.01;
-        const FATOR_TROCA_PAREDES = 8.8;
-        const WATTS_PARA_BTU = 3.412;
-        const FATOR_SENSIBILIDADE_CONFORTO = 0.65;
-        const FATOR_SENSIBILIDADE_PRECISAO = 0.90;
-        const CUSTO_MANUTENCAO_MENSAL_CONFORTO = 1000; // Valor por equipamento
-        const CUSTO_MANUTENCAO_MENSAL_PRECISAO = 2000; // Valor por equipamento
-        const CUSTO_INSTALACAO_CONFORTO = 1000;
-        const CUSTO_INSTALACAO_PRECISAO = 2000;
-
-        let tcoChartInstance = null;
-        let economiaInstance = null;
-
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-            document.getElementById("button-" + tabName).classList.add('active');
-        }
-
-        function getInputs() {
-            const inputs = {
-                area: parseFloat(document.getElementById('area').value) || 0,
-                peDireito: parseFloat(document.getElementById('pe-direito').value) || 0,
-                equipamentosTI: parseFloat(document.getElementById('equipamentos-ti').value) || 0,
-                pessoas: parseInt(document.getElementById('pessoas').value) || 0,
-                custoEnergia: parseFloat(document.getElementById('custo-energia').value) || 0.55,
-                horasDia: parseFloat(document.getElementById('horas-dia').value) || 0,
-                diasMes: parseFloat(document.getElementById('dias-mes').value) || 0,
-            };
-            // Validação simples
-            for (const key in inputs) {
-                if (inputs[key] <= 0) {
-                    alert(`Por favor, insira um valor válido para ${key}.`);
-                    return null;
-                }
-            }
-            return inputs;
-
-
-        }
-
-        function calculateThermalLoad(inputs) {
-            const cargaTI = inputs.equipamentosTI * 1000;
-            const cargaPessoas = inputs.pessoas * WATTS_POR_PESSOA;
-            const cargaIluminacao = inputs.area * WATTS_ILUMINACAO_POR_M2;
-            const cargaTrocaAr = (inputs.area * inputs.peDireito) * FATOR_TROCA_AR;
-            const cargaTrocaParedes = ((Math.sqrt(inputs.area) * inputs.peDireito * 4) + inputs.area) * FATOR_TROCA_PAREDES;
-
-            const cargaTermicaWatts = (cargaTI + cargaPessoas + cargaIluminacao + cargaTrocaAr + cargaTrocaParedes) * 1.2;
-            const cargaTermicaBTUS = (cargaTermicaWatts * WATTS_PARA_BTU);
-
-            return {
-                cargaTermicaWatts,
-                potenciaArConforto: Math.ceil(cargaTermicaBTUS / FATOR_SENSIBILIDADE_CONFORTO / 1000) * 1000,
-                potenciaArPrecisao: Math.ceil(cargaTermicaBTUS / FATOR_SENSIBILIDADE_PRECISAO / 1000) * 1000,
-            };
-        }
-
-        function createPrompt(loadData) {
-            return `
-                Você é um Engenheiro de Vendas Sênior de uma grande integradora de soluções de TI, especializado em dimensionar e cotar projetos de climatização para Data Centers no mercado brasileiro. Sua principal habilidade é a precisão técnica e comercial.
-                **Missão Crítica:**
-                Analise a carga térmica fornecida e dimensione as duas soluções de climatização (Conforto e Precisão) com o máximo de realismo para o mercado brasileiro atual. Sua resposta final deve ser **ÚNICA E EXCLUSIVAMENTE** um objeto JSON válido, sem nenhum texto ou formatação extra.
-                ---
-                **REGRAS E RACIOCÍNIO OBRIGATÓRIOS:**
-                **1. Análise para Ar-Condicionado de Conforto:**
-                    a. **Cálculo de Capacidade:** Com a "Carga Térmica para Ar Conforto" fornecida, selecione o modelo de ar condicionado de conforto padrão (18k, 24k, 30k, 36k, 48k, 57k BTUs). Use a menor quantidade de máquinas possível, priorizando máquinas mais potentes para atender a carga.
-                    b. **Cálculo de Quantidade (24/7):** Determine a quantidade de máquinas necessárias para cobrir a carga térmica. Em seguida, **triplique** esse número para garantir a operação 24/7 em regime de revezamento. Essa é a quantidade final.
-                    c. **Pesquisa de Preço Realista:** Com base no modelo de BTU/h escolhido, pesquise em sua base de dados interna o preço unitário **realista** de um equipamento de **marca de primeira linha (ex: Fujitsu, Daikin, LG Inverter)** vendido por distribuidores especializados no Brasil. O valor deve ser numérico, sem "R$".
-                **2. Análise para Ar-Condicionado de Precisão:**
-                    a. **Cálculo de Quantidade e Redundância (N+1):** Com a "Carga Térmica para Ar Precisão" fornecida, determine a menor quantidade de máquinas necessárias para cobrir a carga. Em seguida, **adicione uma (1) unidade** para redundância (N+1). Essa é a quantidade final.
-                    b. **Cálculo de Potência Individual:** Divida a carga térmica total pela quantidade de máquinas operantes (N) para obter a potência individual de cada equipamento.
-                    c. **Pesquisa de Preço Realista:** Com base na potência individual calculada, pesquise em sua base de dados o preço unitário **realista** de um equipamento de precisão de **marcas renomadas (ex: Vertiv, Stulz, Schneider Electric)**. O valor deve ser numérico.
-                ---
-                **DADOS DE ENTRADA PARA ANÁLISE:**
-                - Carga Térmica para Ar Conforto: ${loadData.potenciaArConforto} BTU/h
-                - Carga Térmica para Ar Precisão: ${loadData.potenciaArPrecisao} BTU/h
-                ---
-                **FORMATO DE SAÍDA (OBRIGATÓRIO E SEM EXCEÇÕES):**
-                Responda apenas com o objeto JSON abaixo. Não adicione comentários, explicações ou a formatação markdown \`\`\`json.
-                {
-                    "ArConforto": {
-                        "quantidade": <numero>,
-                        "potencia_btus": <numero>,
-                        "valor_unitario": <numero>
-                    },
-                    "ArPrecisao": {
-                        "quantidade": <numero>,
-                        "potencia_btus": <numero>,
-                        "valor_unitario": <numero>
-                    }
-                }`;
-        }
-
-        function calculateFinalResults(thermalLoad, geminiData, inputs) {
-            const { ArConforto, ArPrecisao } = geminiData;
-
-            const investEquipamentosConforto = ArConforto.quantidade * ArConforto.valor_unitario;
-            const investEquipamentosPrecisao = ArPrecisao.quantidade * ArPrecisao.valor_unitario;
-
-            const investInstalacaoConforto = ArConforto.quantidade * CUSTO_INSTALACAO_CONFORTO;
-            const investInstalacaoPrecisao = ArPrecisao.quantidade * CUSTO_INSTALACAO_PRECISAO;
-
-
-            // Investimento
-            const investConforto = investEquipamentosConforto + investInstalacaoConforto;
-            const investPrecisao = investEquipamentosPrecisao + investInstalacaoPrecisao;
-            const investimentoAdicional = investPrecisao - investConforto;
-
-            // Consumo de Energia (kW)            
-            // Conforto: 1/3 das máquinas funcionam por vez
-            const consumoHorarioConforto = (ArConforto.quantidade / 3) * (ArConforto.potencia_btus / WATTS_PARA_BTU / 1000);
-            // Precisão: N máquinas funcionam (N = total - 1)
-            const consumoHorarioPrecisao = (ArPrecisao.quantidade - 1) * (ArPrecisao.potencia_btus / WATTS_PARA_BTU / 1000);
-
-            // Custo Anual com Energia
-            const horasAnuais = inputs.horasDia * inputs.diasMes * 12;
-            const custoAnualEnergiaConforto = consumoHorarioConforto * horasAnuais * inputs.custoEnergia;
-            const custoAnualEnergiaPrecisao = consumoHorarioPrecisao * horasAnuais * inputs.custoEnergia;
-
-            // Custo Anual com Manutenção
-            const custoAnualManutencaoConforto = ArConforto.quantidade * CUSTO_MANUTENCAO_MENSAL_CONFORTO * 12;
-            const custoAnualManutencaoPrecisao = ArPrecisao.quantidade * CUSTO_MANUTENCAO_MENSAL_PRECISAO * 12;
-
-            // Custos mensais
-            const custoMensalConforto = custoAnualEnergiaConforto / 12 + custoAnualManutencaoConforto / 12;
-            const custoMensalPrecisao = custoAnualEnergiaPrecisao / 12 + custoAnualManutencaoPrecisao / 12;
-
-            // Economia Anual Total
-            const economiaAnualEnergia = custoAnualEnergiaConforto - custoAnualEnergiaPrecisao;
-            const economiaAnualManutencao = custoAnualManutencaoConforto - custoAnualManutencaoPrecisao;
-            const economiaAnualTotal = economiaAnualEnergia + economiaAnualManutencao;
-
-            // Payback
-            const payback = economiaAnualTotal > 0 ? investimentoAdicional / economiaAnualTotal : Infinity;
-
-            const roi = (economiaAnualTotal * 10 - investPrecisao) * 100 / investPrecisao;
-
-            return {
-                investEquipamentosConforto,
-                investEquipamentosPrecisao,
-                investInstalacaoConforto,
-                investInstalacaoPrecisao,
-                investInstalacaoConforto,
-                investConforto,
-                investPrecisao,
-                investimentoAdicional,
-                custoAnualEnergiaConforto,
-                custoAnualEnergiaPrecisao,
-                custoAnualManutencaoConforto,
-                custoAnualManutencaoPrecisao,
-                custoMensalConforto,
-                custoMensalPrecisao,
-                economiaAnual: economiaAnualTotal,
-                payback,
-                roi,
-            };
-        }
-
-        function updateUI(thermalLoad, geminiData, results) {
-
-            const { ArConforto, ArPrecisao } = geminiData;
-
-            const formatCurrency = (value) => 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            const formatCalculosVirgula = (value) => value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            const formatCalculos = (value) => value.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-
-            document.getElementById('equipamentos-conforto').textContent = formatCurrency(results.investEquipamentosConforto);
-            document.getElementById('instalacao-conforto').textContent = formatCurrency(results.investInstalacaoConforto);
-            document.getElementById('invest-conforto').textContent = formatCurrency(results.investConforto);
-            document.getElementById('energia-conforto').textContent = formatCurrency(results.custoAnualEnergiaConforto / 12);
-            document.getElementById('manutencao-conforto').textContent = formatCurrency(results.custoAnualManutencaoConforto / 12);
-            document.getElementById('custo-mensal-conforto').textContent = formatCurrency(results.custoMensalConforto);
-
-            document.getElementById('equipamentos-precisao').textContent = formatCurrency(results.investEquipamentosPrecisao);
-            document.getElementById('instalacao-precisao').textContent = formatCurrency(results.investInstalacaoPrecisao);
-            document.getElementById('invest-precisao').textContent = formatCurrency(results.investPrecisao);
-            document.getElementById('energia-precisao').textContent = formatCurrency(results.custoAnualEnergiaPrecisao / 12);
-            document.getElementById('manutencao-precisao').textContent = formatCurrency(results.custoAnualManutencaoPrecisao / 12);
-            document.getElementById('custo-mensal-precisao').textContent = formatCurrency(results.custoMensalPrecisao);
-
-            document.getElementById('investimento-adicional').textContent = formatCurrency(results.investimentoAdicional);
-            document.getElementById('economia-anual').textContent = formatCurrency(results.economiaAnual);
-            document.getElementById('payback').textContent = isFinite(results.payback) ? `${results.payback.toFixed(1)} anos` : 'Não aplicável';
-            document.getElementById('roi').textContent = `${results.roi.toFixed(0)} %`;
-
-            document.getElementById('carga-termica').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1.2 / 1000) + ' Kw';
-            document.getElementById('carga-seguranca').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1000) + ' Kw';
-            document.getElementById('carga-conforto').textContent = formatCalculos(thermalLoad.potenciaArConforto) + ' Btus';
-            document.getElementById('carga-precisao').textContent = formatCalculos(thermalLoad.potenciaArPrecisao) + ' Btus';
-
-            document.getElementById('quantidade-conforto').textContent = formatCalculos(ArConforto.quantidade) + ' Equipamentos';
-            document.getElementById('capacidade-conforto').textContent = formatCalculos(ArConforto.potencia_btus) + ' Btus';
-            document.getElementById('potencia-media-conforto').textContent = formatCalculos(ArConforto.potencia_btus / WATTS_PARA_BTU) + ' Watts';
-
-            document.getElementById('quantidade-precisao').textContent = formatCalculos(ArPrecisao.quantidade) + ' Equipamentos';
-            document.getElementById('capacidade-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus) + ' Btus';
-            document.getElementById('potencia-media-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus / WATTS_PARA_BTU) + ' Watts';
-
-            document.querySelectorAll('.disclaimer-box').forEach(function (el) {
-                el.style.display = 'block';
-            });
-            document.querySelector('.apresentacao-resultados').style.display = 'block';
-            document.querySelector('.calculos-content').style.display = 'grid';
-            document.querySelector('.results-grid').style.display = 'grid';
-            document.querySelectorAll('.chart-container').forEach(function (el) {
-                el.style.display = 'block';
-            });
-
-        }
-
-        function toggleLoading(isLoading) {
-            document.querySelector('.summary-metrics').style.display = isLoading ? 'none' : 'grid';
-            document.getElementById('loading-message').style.display = isLoading ? 'block' : 'none';
-            document.getElementById('loading-animation').style.display = isLoading ? 'block' : 'none';
-            document.getElementById('error-message').style.display = 'none'; // Sempre esconde o erro ao iniciar
-        }
-
-        function showError() {
-            document.querySelector('.summary-metrics').style.display = 'none';
-            document.getElementById('loading-message').style.display = 'none';
-            document.getElementById('error-message').style.display = 'block';
-        }
-
-        async function calcularTCO() {
-            const inputs = getInputs();
-            if (!inputs) return;
-
-            toggleLoading(true);
-
-            try {
-                const thermalLoad = calculateThermalLoad(inputs);
-                const prompt = createPrompt(thermalLoad);
-
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                const rawText = data.candidates[0].content.parts[0].text;
-                const cleanedText = rawText.replace(/```json\n?|```/g, '');
-                const geminiData = JSON.parse(cleanedText);
-
-                const finalResults = calculateFinalResults(thermalLoad, geminiData, inputs);
-                await new Promise(resolve => setTimeout(resolve, 2000));
-
-                renderTCOChart(finalResults);
-
-                updateUI(thermalLoad, geminiData, finalResults);
-                showTab('calculos');
-            } catch (error) {
-                console.error("Erro no processo de cálculo:", error);
-                showError();
-            } finally {
-                toggleLoading(false);
-            }
-        }
-
-        function renderTCOChart(results) {
-            const years = Array.from({ length: 11 }, (_, i) => i); // 0 a 10 anos
-
-            const tcoConfortoData = years.map(year =>
-                results.investConforto + (results.custoMensalConforto * 12 * year)
-            );
-            const tcoPrecisaoData = years.map(year =>
-                results.investPrecisao + (results.custoMensalPrecisao * 12 * year)
-            );
-
-            const economiaAnos = years.map(year =>
-                -results.investPrecisao + (results.economiaAnual * year)
-            );
-
-            const ctx = document.getElementById('tcoChart').getContext('2d');
-            const ctx2 = document.getElementById('grafico-economia').getContext('2d');
-
-            // Destrua o gráfico antigo, se existir
-            if (tcoChartInstance) {
-                tcoChartInstance.destroy();
-            }
-
-            // Destrua o gráfico antigo, se existir
-            if (economiaInstance) {
-                economiaInstance.destroy();
-            }
-
-            tcoChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: years,
-                    datasets: [
-                        {
-                            label: 'Ar Conforto',
-                            data: tcoConfortoData,
-                            borderColor: 'rgb(52, 110, 216)', // Azul
-                            backgroundColor: 'rgba(52, 110, 216)',
-                            tension: 0.2, // linha suave
-                            pointRadius: 2,
-                            pointBackgroundColor: 'rgb(52, 110, 216)'
-                        },
-                        {
-                            label: 'Ar Precisão',
-                            data: tcoPrecisaoData,
-                            borderColor: 'rgb(16, 223, 16)', // Verde
-                            backgroundColor: 'rgba(16, 223, 16)',
-                            tension: 0.2,
-                            pointRadius: 2,
-                            pointBackgroundColor: 'rgb(16, 223, 16)'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Evolução do TCO',
-                            font: { size: 18, weight: 'bold' }
-                        },
-                        subtitle: {
-                            display: true,
-                            text: 'Custo total acumulado ao longo dos anos',
-                            font: { size: 14 },
-                            padding: {
-                                bottom: 20 // valor em pixels para aumentar a margem abaixo
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) label += ': ';
-                                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.raw);
-                                    return label;
-                                },
-                                title: function (context) {
-                                    return `Ano ${context[0].label}`;
-                                }
-                            }
-                        },
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,    // Exibe o ponto, não o quadrado
-                                pointStyle: 'circle',    // Usa círculo como estilo do marcador                               
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: { display: true, text: 'Tempo (anos)', font: { size: 14, weight: 'bold' } }
-                        },
-                        y: {
-                            title: { display: true, text: 'Custo Acumulado (R\$)', font: { size: 14, weight: 'bold' } },
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-
-
-            economiaInstance = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: years,
-                    datasets: [
-                        {
-                            data: economiaAnos,
-                            borderColor: 'rgb(16, 223, 16)', // Verde
-                            backgroundColor: 'rgba(16, 223, 16)',
-                            tension: 0.2,
-                            pointRadius: 2,
-                            pointBackgroundColor: 'rgb(16, 223, 16)'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Economia acumulada',
-                            font: { size: 18, weight: 'bold' }
-                        },
-                        subtitle: {
-                            display: true,
-                            text: 'Economia do ar de precisão em relação ao ar de conforto ao longo dos anos',
-                            font: { size: 14 },
-                            padding: {
-                                bottom: 20 // valor em pixels para aumentar a margem abaixo
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) label += ': ';
-                                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.raw);
-                                    return label;
-                                },
-                                title: function (context) {
-                                    return `Ano ${context[0].label}`;
-                                }
-                            }
-                        },
-                        legend: {
-                            display: false,
-                        }
-                    },
-                    scales: {
-                        x: {
-                            title: { display: true, text: 'Tempo (anos)', font: { size: 14, weight: 'bold' } }
-                        },
-                        y: {
-                            title: { display: true, text: 'Economia acumulada (R\$)', font: { size: 14, weight: 'bold' } },
-                            beginAtZero: true
-                        }
-                    }
-                }
-
-            });
-
-
-
-        }
-    </script>
 </body>
 
 </html>

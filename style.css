@@ -1,3 +1,4 @@
+/* Reset básico */
 * {
     margin: 0;
     padding: 0;
@@ -7,13 +8,10 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     min-height: 100vh;
-
-    background-image: url('Imagens/Background.png');
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
+    background: url('Imagens/Background.png') no-repeat center/cover;
 }
 
+/* Cabeçalho */
 header {
     background: #fff;
     padding: 20px;
@@ -27,31 +25,33 @@ header img {
     height: auto;
 }
 
+/* Título principal */
 .titulo {
     text-align: center;
 }
 
 .titulo h1 {
+    font-family: 'Poppins', sans-serif;
     font-size: 32px;
     color: #003366;
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
 }
 
 .titulo p {
+    font-family: 'Poppins', sans-serif;
     font-size: 18px;
     color: #3885d8;
     margin-top: 5px;
-    font-family: 'Poppins', sans-serif;
 }
 
+/* Container geral */
 .container {
     width: 90%;
     max-width: 920px;
     margin: 0 auto;
-    padding: 40px 0px;
+    padding: 40px 0;
 }
 
+/* Cartões de resumo */
 .summary-card {
     background: white;
     border-radius: 20px;
@@ -59,12 +59,11 @@ header img {
     margin-bottom: 30px;
 }
 
-
 .summary-metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 40px;
-    margin: 20px 0px;
+    margin: 20px 0;
 }
 
 .metric {
@@ -99,15 +98,16 @@ header img {
     color: #805ad5;
 }
 
+/* Abas (Tabs) */
 .tabs {
-    border-radius: 10px;
     background: white;
+    border-radius: 10px;
 }
 
 .tab-nav {
     display: flex;
     background: #2B88C8;
-    border-radius: 10px 10px 0px 0px;
+    border-radius: 10px 10px 0 0;
 }
 
 .tab-button {
@@ -125,13 +125,12 @@ header img {
 .tab-button.active {
     background: #bbddff;
     color: #232a36;
-    border-radius: 10px 10px 0px 0;
+    border-radius: 10px 10px 0 0;
 }
 
 .tab-button:hover {
     color: #232a36;
 }
-
 
 .tab-content {
     padding: 30px;
@@ -142,6 +141,7 @@ header img {
     display: block;
 }
 
+/* Formulários */
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -199,7 +199,7 @@ header img {
 
 .form-group input {
     width: 100%;
-    padding: 10px 10px;
+    padding: 10px;
     border: 1px solid #cbd5e0;
     border-radius: 6px;
     font-size: 0.95rem;
@@ -212,6 +212,7 @@ header img {
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
 }
 
+/* Botão de cálculo */
 .calculate-btn {
     background: #2B88C8;
     color: white;
@@ -231,13 +232,8 @@ header img {
     color: #232a36;
 }
 
-.calculos-content {
-    display: none;
-    grid-template-columns: repeat(2, minmax(100px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
+/* Resultados e Cálculos */
+.calculos-content,
 .results-grid {
     display: none;
     grid-template-columns: repeat(2, minmax(100px, 1fr));
@@ -255,9 +251,7 @@ header img {
 }
 
 .result-card h3 {
-    margin-bottom: 20px;
-    margin-top: 0;
-
+    margin: 0 0 20px;
 }
 
 .result-card h4 {
@@ -266,12 +260,7 @@ header img {
     font-weight: 500;
 }
 
-.result-values {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 5px;
-}
-
+.result-values,
 .result-final {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -294,8 +283,8 @@ header img {
     margin: 10px 0;
 }
 
+/* Apresentação de resultados */
 .apresentacao-resultados {
-
     background: #f8fafc;
     padding: 20px;
     border-radius: 20px;
@@ -305,6 +294,7 @@ header img {
     display: none;
 }
 
+/* Gráficos */
 .chart-container {
     width: 90%;
     max-width: 800px;
@@ -330,33 +320,7 @@ header img {
 #tcoChart {
     max-height: 600px;
     width: 100% !important;
-    height: auto !important;     
-}
-
-.disclaimer-box {
-    background-color: #fff3cd;
-    border: 1px solid #ffeeba;
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 30px;
-    color: #856404;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    display: none;
-
-}
-
-.disclaimer-box p a {
-    color: #856404;
-    font-weight: bold;
-    text-decoration: none;
-}
-
-
-.disclaimer-box h4 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-weight: bold;
+    height: auto !important;
 }
 
 .chart-placeholder {
@@ -372,15 +336,56 @@ header img {
     margin: 20px 0;
 }
 
+/* Aviso (disclaimer) */
+.disclaimer-box {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px;
+    color: #856404;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    display: none;
+}
+
+.disclaimer-box h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.disclaimer-box p a {
+    color: #856404;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* Spinner de carregamento */
+.spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+//* Responsividade */
 @media (max-width: 768px) {
     .header h1 {
         font-size: 2rem;
-    }
-
-    .features {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
     }
 
     .summary-metrics {
@@ -401,24 +406,252 @@ header img {
     }
 }
 
-.spinner {
-    border: 6px solid #f3f3f3;
-    /* Cor da borda externa */
-    border-top: 6px solid #007bff;
-    /* Cor da animação (azul) */
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 20px auto;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
+@media (max-width: 768px) {
+    header img {
+        width: 60vw;
     }
 
-    100% {
-        transform: rotate(360deg);
+    .titulo h1 {
+        font-size: 24px;
+    }
+
+    .titulo p {
+        font-size: 16px;
+    }
+
+    .container {
+        width: 95%;
+        padding: 20px 0;
+    }
+
+    .summary-card {
+        padding: 15px;
+    }
+
+    .tab-button {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+
+    .tab-content {
+        padding: 20px;
+    }
+
+    .form-section {
+        padding: 20px;
+    }
+
+    .form-section h3 {
+        font-size: 1.4rem;
+    }
+
+    .form-group label {
+        font-size: 0.85rem;
+    }
+
+    .form-group input {
+        font-size: 0.9rem;
+    }
+
+    .calculate-btn {
+        padding: 12px 25px;
+        font-size: 0.95rem;
+    }
+
+    .calculos-content,
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .result-card {
+        padding: 15px;
+    }
+
+    .result-card h3 {
+        font-size: 1.2rem;
+    }
+
+    .result-card h4 {
+        font-size: 0.8rem;
+    }
+
+    .result-paramter,
+    .result-value {
+        font-size: 0.9rem;
+    }
+
+    .apresentacao-resultados h2 {
+        font-size: 1.5rem;
+    }
+
+    .apresentacao-resultados h3 {
+        font-size: 1.1rem;
+    }
+
+    .metric-label {
+        font-size: 0.8rem;
+    }
+
+    .metric-value {
+        font-size: 1.1rem;
+    }
+
+    .chart-container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .disclaimer-box {
+        padding: 15px;
+        font-size: 0.85rem;
     }
 }
+
+@media (max-width: 768px) {
+    .tab-nav {
+        flex-direction: column;
+    }
+
+    .tab-button {
+        width: 100%;
+        border-radius: 0;
+    }
+
+    .tab-button:first-child {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+
+    .tab-button:last-child {
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+    .form-grid,
+    .calculos-content,
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-metrics {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* Responsividade para telas muito pequenas */
+@media (max-width: 480px) {
+    header img {
+        width: 80vw;
+    }
+
+    .titulo h1 {
+        font-size: 20px;
+    }
+
+    .titulo p {
+        font-size: 14px;
+    }
+
+    .container {
+        width: 98%;
+        padding: 15px 0;
+    }
+
+    .summary-card {
+        padding: 10px;
+    }
+
+    .tab-button {
+        font-size: 0.8rem;
+        padding: 8px 12px;
+    }
+
+    .tab-content {
+        padding: 15px;
+    }
+
+    .form-section {
+        padding: 15px;
+    }
+
+    .form-section h3 {
+        font-size: 1.2rem;
+    }
+
+    .form-group label {
+        font-size: 0.8rem;
+    }
+
+    .form-group input {
+        font-size: 0.85rem;
+        padding: 8px;
+    }
+
+    .calculate-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .result-card {
+        padding: 12px;
+    }
+
+    .result-card h3 {
+        font-size: 1rem;
+    }
+
+    .result-card h4 {
+        font-size: 0.75rem;
+    }
+
+    .result-paramter,
+    .result-value {
+        font-size: 0.8rem;
+    }
+
+    .apresentacao-resultados h2 {
+        font-size: 1.3rem;
+    }
+
+    .apresentacao-resultados h3 {
+        font-size: 1rem;
+    }
+
+    .metric-label {
+        font-size: 0.75rem;
+    }
+
+    .metric-value {
+        font-size: 1rem;
+    }
+
+    .chart-container {
+        width: 98%;
+        padding: 10px;
+    }
+
+    .disclaimer-box {
+        padding: 12px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Melhorias para touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .tab-button {
+        padding: 12px 15px;
+        min-height: 44px;
+    }
+
+    .form-group input {
+        padding: 12px;
+        min-height: 44px;
+    }
+
+    .calculate-btn {
+        padding: 15px 30px;
+        min-height: 44px;
+    }
+}
+
