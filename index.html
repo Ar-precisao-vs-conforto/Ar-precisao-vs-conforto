@@ -7,6 +7,7 @@
     <title>Ar Condicionado de Conforto vs Precisão</title>
     <link rel="shortcut icon" href="Imagens/Logo_redes_1.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -40,7 +41,7 @@
                     onclick="showTab('parametros')">Parâmetros</button>
                 <button id="button-calculos" class="tab-button" onclick="showTab('calculos')">Cálculos</button>
                 <button id="button-resultados" class="tab-button" onclick="showTab('resultados')">Resultados</button>
-                <!-- <button id="button-graficos" class="tab-button" onclick="showTab('graficos')">Gráficos</button> -->
+                <button id="button-graficos" class="tab-button" onclick="showTab('graficos')">Gráficos</button>
             </div>
 
             <!-- Parâmetros Tab -->
@@ -156,6 +157,21 @@
 
 
                     </div>
+
+
+                </div>
+
+                <div class="disclaimer-box">
+                    <h4>⚠️ Aviso Importante</h4>
+                    <p style="margin-bottom: 10px;">
+                        Os resultados apresentados neste simulador são estimativas baseadas nos dados fornecidos. Embora
+                        os cálculos reflitam práticas comuns do mercado, os valores são apenas aproximados.
+                    </p>
+                    <p>
+                        Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
+                        uma avaliação técnica detalhada com profissionais qualificados. Entre em contato conosco e <a
+                            href="">solicite uma avaliação</a>
+                    </p>
                 </div>
             </div>
 
@@ -230,6 +246,7 @@
                             <span id="custo-mensal-precisao" class="result-value">R$--,--</span>
                         </div>
                     </div>
+
                 </div>
 
 
@@ -268,29 +285,43 @@
                 <div class="disclaimer-box">
                     <h4>⚠️ Aviso Importante</h4>
                     <p style="margin-bottom: 10px;">
-                        Os resultados apresentados neste simulador são estimativas baseadas nos dados fornecidos e
-                        modelos técnicos
-                        utilizados. Embora os cálculos reflitam práticas comuns do mercado, os valores são apenas
-                        aproximados.
+                        Os resultados apresentados neste simulador são estimativas baseadas nos dados fornecidos. Embora
+                        os cálculos reflitam práticas comuns do mercado, os valores são apenas aproximados.
                     </p>
                     <p>
                         Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
-                        uma avaliação
-                        técnica detalhada com profissionais qualificados, considerando as particularidades do seu
-                        ambiente e os
-                        requisitos normativos aplicáveis.
+                        uma avaliação técnica detalhada com profissionais qualificados. Entre em contato conosco e <a
+                            href="">solicite uma
+                            avaliação</a>
                     </p>
                 </div>
-
-
-
-
             </div>
 
 
             <!-- Gráficos Tab -->
             <div id="graficos" class="tab-content">
-                <!-- Conteúdo da aba Gráficos -->
+                <div class="chart-container">
+                    <canvas id="tcoChart"></canvas>
+                </div>        
+                
+                <div class="chart-container">
+                    <canvas id="grafico-economia"></canvas>
+                </div>
+
+                <div class="disclaimer-box">
+                    <h4>⚠️ Aviso Importante</h4>
+                    <p style="margin-bottom: 10px;">
+                        Os resultados apresentados neste simulador são estimativas baseadas nos dados fornecidos. Embora
+                        os cálculos reflitam práticas comuns do mercado, os valores são apenas aproximados.
+                    </p>
+                    <p>
+                        Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
+                        uma avaliação técnica detalhada com profissionais qualificados. Entre em contato conosco e <a
+                            href="">solicite uma
+                            avaliação</a>
+                    </p>
+                </div>
+
             </div>
         </div>
 
@@ -317,6 +348,9 @@
         const CUSTO_MANUTENCAO_MENSAL_PRECISAO = 2000; // Valor por equipamento
         const CUSTO_INSTALACAO_CONFORTO = 1000;
         const CUSTO_INSTALACAO_PRECISAO = 2000;
+
+        let tcoChartInstance = null;     
+        let economiaInstance = null; 
 
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -505,10 +539,15 @@
             document.getElementById('capacidade-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus) + ' Btus';
             document.getElementById('potencia-media-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus / WATTS_PARA_BTU) + ' Watts';
 
+            document.querySelectorAll('.disclaimer-box').forEach(function (el) {
+                el.style.display = 'block';
+            });
+            document.querySelector('.apresentacao-resultados').style.display = 'block';
             document.querySelector('.calculos-content').style.display = 'grid';
             document.querySelector('.results-grid').style.display = 'grid';
-            document.querySelector('.apresentacao-resultados').style.display = 'block';
-            document.querySelector('.disclaimer-box').style.display = 'block';
+            document.querySelectorAll('.chart-container').forEach(function (el) {
+                el.style.display = 'block';
+            });
 
         }
 
@@ -552,6 +591,9 @@
 
                 const finalResults = calculateFinalResults(thermalLoad, geminiData, inputs);
                 await new Promise(resolve => setTimeout(resolve, 2000));
+
+                renderTCOChart(finalResults);
+
                 updateUI(thermalLoad, geminiData, finalResults);
                 showTab('calculos');
             } catch (error) {
@@ -560,6 +602,176 @@
             } finally {
                 toggleLoading(false);
             }
+        }
+
+        function renderTCOChart(results) {
+            const years = Array.from({ length: 11 }, (_, i) => i); // 0 a 10 anos
+
+            const tcoConfortoData = years.map(year =>
+                results.investConforto + (results.custoMensalConforto * 12 * year)
+            );
+            const tcoPrecisaoData = years.map(year =>
+                results.investPrecisao + (results.custoMensalPrecisao * 12 * year)
+            );
+
+            const economiaAnos = years.map(year =>
+                -results.investPrecisao + (results.economiaAnual * year)
+            );
+
+            const ctx = document.getElementById('tcoChart').getContext('2d');
+            const ctx2 = document.getElementById('grafico-economia').getContext('2d');
+
+            // Destrua o gráfico antigo, se existir
+            if (tcoChartInstance) {
+                tcoChartInstance.destroy();
+            }
+
+             // Destrua o gráfico antigo, se existir
+            if (economiaInstance) {
+                economiaInstance.destroy();
+            }
+
+            tcoChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Ar Conforto',
+                            data: tcoConfortoData,
+                            borderColor: 'rgb(52, 110, 216)', // Azul
+                            backgroundColor: 'rgba(52, 110, 216)',
+                            tension: 0.2, // linha suave
+                            pointRadius: 2,
+                            pointBackgroundColor: 'rgb(52, 110, 216)'
+                        },
+                        {
+                            label: 'Ar Precisão',
+                            data: tcoPrecisaoData,
+                            borderColor: 'rgb(16, 223, 16)', // Verde
+                            backgroundColor: 'rgba(16, 223, 16)',
+                            tension: 0.2,
+                            pointRadius: 2,
+                            pointBackgroundColor: 'rgb(16, 223, 16)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Evolução do TCO',
+                            font: { size: 18, weight: 'bold' }
+                        },
+                        subtitle: {
+                            display: true,
+                            text: 'Custo total acumulado ao longo dos anos',
+                            font: { size: 14 },
+                            padding: {
+                                bottom: 20 // valor em pixels para aumentar a margem abaixo
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.raw);
+                                    return label;
+                                },
+                                title: function (context) {
+                                    return `Ano ${context[0].label}`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,    // Exibe o ponto, não o quadrado
+                                pointStyle: 'circle',    // Usa círculo como estilo do marcador                               
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Tempo (anos)', font: { size: 14, weight: 'bold' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Custo Acumulado (R\$)', font: { size: 14, weight: 'bold' } },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+
+            economiaInstance =  new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: years,
+                    datasets: [                        
+                        {                            
+                            data: economiaAnos,
+                            borderColor: 'rgb(16, 223, 16)', // Verde
+                            backgroundColor: 'rgba(16, 223, 16)',
+                            tension: 0.2,
+                            pointRadius: 2,
+                            pointBackgroundColor: 'rgb(16, 223, 16)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Economia acumulada',
+                            font: { size: 18, weight: 'bold' }
+                        },
+                        subtitle: {
+                            display: true,
+                            text: 'Economia do ar de precisão em relação ao ar de conforto ao longo dos anos',
+                            font: { size: 14 },
+                            padding: {
+                                bottom: 20 // valor em pixels para aumentar a margem abaixo
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.raw);
+                                    return label;
+                                },
+                                title: function (context) {
+                                    return `Ano ${context[0].label}`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false,
+                        }                       
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Tempo (anos)', font: { size: 14, weight: 'bold' } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Economia acumulada (R\$)', font: { size: 14, weight: 'bold' } },
+                            beginAtZero: true
+                        }
+                    }
+                }
+
+            });
+
+            
+
         }
     </script>
 </body>

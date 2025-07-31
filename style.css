@@ -305,6 +305,34 @@ header img {
     display: none;
 }
 
+.chart-container {
+    width: 90%;
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #f9f9f9;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: none;
+}
+
+.chart-container h2 {
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.chart-container p {
+    color: #666;
+    margin-bottom: 25px;
+}
+
+#tcoChart {
+    max-height: 600px;
+    width: 100% !important;
+    height: auto !important;     
+}
+
 .disclaimer-box {
     background-color: #fff3cd;
     border: 1px solid #ffeeba;
@@ -314,9 +342,16 @@ header img {
     color: #856404;
     font-size: 0.95rem;
     line-height: 1.5;
-
     display: none;
+
 }
+
+.disclaimer-box a {
+    color: #856404;
+    font-weight: bold;
+    text-decoration: none;
+}
+
 
 .disclaimer-box h4 {
     margin-top: 0;
