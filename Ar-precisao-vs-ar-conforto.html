@@ -38,7 +38,7 @@
             <div class="tab-nav">
                 <button id="button-parametros" class="tab-button active"
                     onclick="showTab('parametros')">Parâmetros</button>
-                <!-- <button id="button-calculos" class="tab-button" onclick="showTab('calculos')">Cálculos</button> -->
+                <button id="button-calculos" class="tab-button" onclick="showTab('calculos')">Cálculos</button>
                 <button id="button-resultados" class="tab-button" onclick="showTab('resultados')">Resultados</button>
                 <!-- <button id="button-graficos" class="tab-button" onclick="showTab('graficos')">Gráficos</button> -->
             </div>
@@ -103,7 +103,60 @@
 
             <!-- Cálculos Tab -->
             <div id="calculos" class="tab-content">
-                <!-- Conteúdo da aba calculos -->
+                <div class="calculos-content">
+                    <div class="result-card">
+
+                        <h3 style="color: rgb(0, 0, 0);">Cálculos térmicos</h3>
+
+                        <div class="result-values">
+                            <span class="result-paramter">Carga térmica total:</span>
+                            <span id="carga-termica" class="result-value">-- Kw</span>
+
+                            <span class="result-paramter">Carga com segurança (20%):</span>
+                            <span id="carga-seguranca" class="result-value">-- Kw</span>
+                        </div>
+                        <hr style="margin: 30px 0 20px 0;">
+                        <div class="result-final">
+                            <span class="result-paramter">Capacidade necessária (conforto):</span>
+                            <span id="carga-conforto" class="result-value">-- BTUS</span>
+
+                            <span class="result-paramter">Capacidade necessária (precisão):</span>
+                            <span id="carga-precisao" class="result-value">-- BTUS</span>
+                        </div>
+
+                    </div>
+
+                    <div class="result-card">
+
+                        <h3 style="color: rgb(0, 0, 0);">Dimenssionamento</h3>
+
+                        <h4 style="color: rgb(52, 110, 216);">Ar condicionado de conforto</h4>
+                        <div class="result-values">
+                            <span class="result-paramter">Quantidade:</span>
+                            <span id="quantidade-conforto" class="result-value">--</span>
+
+                            <span class="result-paramter">Capacidade unitária:</span>
+                            <span id="capacidade-conforto" class="result-value">--</span>
+
+                            <span class="result-paramter">Potência média:</span>
+                            <span id="potencia-media-conforto" class="result-value">--</span>
+                        </div>
+                        <hr>
+                        <h4 style="color: rgb(16, 223, 16);">Ar condicionado de precisão</h4>
+                        <div class="result-values">
+                            <span class="result-paramter">Quantidade:</span>
+                            <span id="quantidade-precisao" class="result-value">--</span>
+
+                            <span class="result-paramter">Capacidade unitária:</span>
+                            <span id="capacidade-precisao" class="result-value">--</span>
+
+                            <span class="result-paramter">Potência média:</span>
+                            <span id="potencia-media-precisao" class="result-value">--</span>
+                        </div>
+
+
+                    </div>
+                </div>
             </div>
 
             <!-- Resultados Tab -->
@@ -219,7 +272,7 @@
                         modelos técnicos
                         utilizados. Embora os cálculos reflitam práticas comuns do mercado, os valores são apenas
                         aproximados.
-                    </p>                   
+                    </p>
                     <p>
                         Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
                         uma avaliação
@@ -301,10 +354,11 @@
             const cargaTrocaAr = (inputs.area * inputs.peDireito) * FATOR_TROCA_AR;
             const cargaTrocaParedes = ((Math.sqrt(inputs.area) * inputs.peDireito * 4) + inputs.area) * FATOR_TROCA_PAREDES;
 
-            const cargaTermicaWatts = cargaTI + cargaPessoas + cargaIluminacao + cargaTrocaAr + cargaTrocaParedes;
-            const cargaTermicaBTUS = cargaTermicaWatts * WATTS_PARA_BTU;
+            const cargaTermicaWatts = (cargaTI + cargaPessoas + cargaIluminacao + cargaTrocaAr + cargaTrocaParedes) * 1.2;
+            const cargaTermicaBTUS = (cargaTermicaWatts * WATTS_PARA_BTU);
 
             return {
+                cargaTermicaWatts,
                 potenciaArConforto: Math.ceil(cargaTermicaBTUS / FATOR_SENSIBILIDADE_CONFORTO / 1000) * 1000,
                 potenciaArPrecisao: Math.ceil(cargaTermicaBTUS / FATOR_SENSIBILIDADE_PRECISAO / 1000) * 1000,
             };
@@ -388,7 +442,7 @@
             // Payback
             const payback = economiaAnualTotal > 0 ? investimentoAdicional / economiaAnualTotal : Infinity;
 
-            const roi = 335;
+            const roi = (economiaAnualTotal * 10 - investPrecisao) * 100 / investPrecisao;
 
             return {
                 investEquipamentosConforto,
@@ -411,8 +465,13 @@
             };
         }
 
-        function updateUI(results) {
+        function updateUI(thermalLoad, geminiData, results) {
+
+            const { ArConforto, ArPrecisao } = geminiData;
+
             const formatCurrency = (value) => 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const formatCalculosVirgula = (value) => value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const formatCalculos = (value) => value.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
             document.getElementById('equipamentos-conforto').textContent = formatCurrency(results.investEquipamentosConforto);
             document.getElementById('instalacao-conforto').textContent = formatCurrency(results.investInstalacaoConforto);
@@ -428,15 +487,29 @@
             document.getElementById('manutencao-precisao').textContent = formatCurrency(results.custoAnualManutencaoPrecisao / 12);
             document.getElementById('custo-mensal-precisao').textContent = formatCurrency(results.custoMensalPrecisao);
 
-
             document.getElementById('investimento-adicional').textContent = formatCurrency(results.investimentoAdicional);
             document.getElementById('economia-anual').textContent = formatCurrency(results.economiaAnual);
             document.getElementById('payback').textContent = isFinite(results.payback) ? `${results.payback.toFixed(1)} anos` : 'Não aplicável';
             document.getElementById('roi').textContent = `${results.roi.toFixed(0)} %`;
 
+            document.getElementById('carga-termica').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1.2 / 1000) + ' Kw';
+            document.getElementById('carga-seguranca').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1000) + ' Kw';
+            document.getElementById('carga-conforto').textContent = formatCalculos(thermalLoad.potenciaArConforto) + ' Btus';
+            document.getElementById('carga-precisao').textContent = formatCalculos(thermalLoad.potenciaArPrecisao) + ' Btus';
+
+            document.getElementById('quantidade-conforto').textContent = formatCalculos(ArConforto.quantidade) + ' Equipamentos';
+            document.getElementById('capacidade-conforto').textContent = formatCalculos(ArConforto.potencia_btus) + ' Btus';
+            document.getElementById('potencia-media-conforto').textContent = formatCalculos(ArConforto.potencia_btus / WATTS_PARA_BTU) + ' Watts';
+
+            document.getElementById('quantidade-precisao').textContent = formatCalculos(ArPrecisao.quantidade) + ' Equipamentos';
+            document.getElementById('capacidade-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus) + ' Btus';
+            document.getElementById('potencia-media-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus / WATTS_PARA_BTU) + ' Watts';
+
+            document.querySelector('.calculos-content').style.display = 'grid';
             document.querySelector('.results-grid').style.display = 'grid';
             document.querySelector('.apresentacao-resultados').style.display = 'block';
             document.querySelector('.disclaimer-box').style.display = 'block';
+
         }
 
         function toggleLoading(isLoading) {
@@ -479,8 +552,8 @@
 
                 const finalResults = calculateFinalResults(thermalLoad, geminiData, inputs);
                 await new Promise(resolve => setTimeout(resolve, 2000));
-                updateUI(finalResults);
-                showTab('resultados');
+                updateUI(thermalLoad, geminiData, finalResults);
+                showTab('calculos');
             } catch (error) {
                 console.error("Erro no processo de cálculo:", error);
                 showError();

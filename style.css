@@ -8,7 +8,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     min-height: 100vh;
 
-    background-image: url('Imagens/Design\ sem\ nome.png');
+    background-image: url('Imagens/Background.png');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -231,12 +231,18 @@ header img {
     color: #232a36;
 }
 
+.calculos-content {
+    display: none;
+    grid-template-columns: repeat(2, minmax(100px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
 .results-grid {
     display: none;
     grid-template-columns: repeat(2, minmax(100px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
-
 }
 
 .result-card {
@@ -262,13 +268,13 @@ header img {
 
 .result-values {
     display: grid;
-    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    grid-template-columns: 2fr 1fr;
     gap: 5px;
 }
 
 .result-final {
     display: grid;
-    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    grid-template-columns: 2fr 1fr;
     gap: 5px;
 }
 
