@@ -170,8 +170,10 @@
                     <p>
                         Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
                         uma avaliação técnica detalhada com profissionais qualificados. Entre em contato conosco e <a
-                            href="">solicite uma avaliação</a>
+                            href="https://redestecnologia.com.br/whatsapp/" target="_blank" rel="noopener noreferrer">solicite uma avaliação</a>
                     </p>
+
+                   
                 </div>
             </div>
 
@@ -291,7 +293,7 @@
                     <p>
                         Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
                         uma avaliação técnica detalhada com profissionais qualificados. Entre em contato conosco e <a
-                            href="">solicite uma
+                            href="https://redestecnologia.com.br/whatsapp/" target="_blank" rel="noopener noreferrer">solicite uma
                             avaliação</a>
                     </p>
                 </div>
@@ -302,8 +304,8 @@
             <div id="graficos" class="tab-content">
                 <div class="chart-container">
                     <canvas id="tcoChart"></canvas>
-                </div>        
-                
+                </div>
+
                 <div class="chart-container">
                     <canvas id="grafico-economia"></canvas>
                 </div>
@@ -317,7 +319,7 @@
                     <p>
                         Para decisões de investimento, implementação ou aquisição de equipamentos, é essencial realizar
                         uma avaliação técnica detalhada com profissionais qualificados. Entre em contato conosco e <a
-                            href="">solicite uma
+                            href="https://redestecnologia.com.br/whatsapp/" target="_blank" rel="noopener noreferrer">solicite uma
                             avaliação</a>
                     </p>
                 </div>
@@ -349,8 +351,8 @@
         const CUSTO_INSTALACAO_CONFORTO = 1000;
         const CUSTO_INSTALACAO_PRECISAO = 2000;
 
-        let tcoChartInstance = null;     
-        let economiaInstance = null; 
+        let tcoChartInstance = null;
+        let economiaInstance = null;
 
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -626,7 +628,7 @@
                 tcoChartInstance.destroy();
             }
 
-             // Destrua o gráfico antigo, se existir
+            // Destrua o gráfico antigo, se existir
             if (economiaInstance) {
                 economiaInstance.destroy();
             }
@@ -708,12 +710,12 @@
             });
 
 
-            economiaInstance =  new Chart(ctx2, {
+            economiaInstance = new Chart(ctx2, {
                 type: 'bar',
                 data: {
                     labels: years,
-                    datasets: [                        
-                        {                            
+                    datasets: [
+                        {
                             data: economiaAnos,
                             borderColor: 'rgb(16, 223, 16)', // Verde
                             backgroundColor: 'rgba(16, 223, 16)',
@@ -755,7 +757,7 @@
                         },
                         legend: {
                             display: false,
-                        }                       
+                        }
                     },
                     scales: {
                         x: {
@@ -770,7 +772,7 @@
 
             });
 
-            
+
 
         }
     </script>
