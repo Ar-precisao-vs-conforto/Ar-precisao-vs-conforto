@@ -456,6 +456,8 @@ function renderTCOChart(results) {
  */
 async function calcularTCO() {
 
+    if (document.activeElement) document.activeElement.blur();
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     const inputs = getInputs();
