@@ -340,9 +340,9 @@ function renderTCOChart(results) {
                 subtitle: {
                     display: true,
                     text: 'Custo total acumulado ao longo dos anos',
-                    font: { size: 14 },
+                    font: { size: 12 },
                     padding: {
-                        bottom: 20
+                        bottom: 40
                     }
                 },
                 tooltip: {
@@ -369,10 +369,10 @@ function renderTCOChart(results) {
             },
             scales: {
                 x: {
-                    title: { display: true, text: 'Tempo (anos)', font: { size: 14, weight: 'bold' } }
+                    title: { display: true, text: 'Tempo (anos)', font: { size: 12, weight: 'bold' } }
                 },
                 y: {
-                    title: { display: true, text: 'Custo Acumulado (R$)', font: { size: 14, weight: 'bold' } },
+                    title: { display: true, text: 'Custo Acumulado (R$)', font: { size: 12, weight: 'bold' } },
                     beginAtZero: true
                 }
             }
@@ -406,9 +406,9 @@ function renderTCOChart(results) {
                 subtitle: {
                     display: true,
                     text: 'Economia do ar de precisão em relação ao ar de conforto ao longo dos anos',
-                    font: { size: 14 },
+                    font: { size: 10 },
                     padding: {
-                        bottom: 20
+                        bottom: 40
                     }
                 },
                 tooltip: {
@@ -430,10 +430,10 @@ function renderTCOChart(results) {
             },
             scales: {
                 x: {
-                    title: { display: true, text: 'Tempo (anos)', font: { size: 14, weight: 'bold' } }
+                    title: { display: true, text: 'Tempo (anos)', font: { size: 12, weight: 'bold' } }
                 },
                 y: {
-                    title: { display: true, text: 'Economia acumulada (R$)', font: { size: 14, weight: 'bold' } },
+                    title: { display: true, text: 'Economia acumulada (R$)', font: { size: 12, weight: 'bold' } },
                     beginAtZero: true
                 }
             }

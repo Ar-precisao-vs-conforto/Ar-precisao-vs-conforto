@@ -323,6 +323,12 @@ header img {
     height: auto !important;
 }
 
+#grafico-economia {
+    max-height: 400px;
+    width: 100% !important;
+    height: auto !important;
+}
+
 .chart-placeholder {
     background: #f8fafc;
     border: 2px dashed #cbd5e0;
@@ -382,7 +388,7 @@ header img {
     }
 }
 
-//* Responsividade */
+/* Responsividade */
 @media (max-width: 768px) {
     .header h1 {
         font-size: 2rem;
@@ -652,6 +658,62 @@ header img {
     .calculate-btn {
         padding: 15px 30px;
         min-height: 44px;
+    }
+}
+
+
+
+@media (max-width: 768px) {
+    .chart-container {
+        width: 100%;
+        margin: 10px auto;
+        padding: 10px;
+    }
+
+    #tcoChart,
+    #grafico-economia {
+        max-height: 300px; /* Limita a altura para evitar gráficos muito altos em telas pequenas */
+    }
+
+    .chart-container h2 {
+        font-size: 1.2rem;
+    }
+
+    .chart-container p {
+        font-size: 0.9rem;
+    }
+}
+
+
+/* Responsividade específica para gráficos em telas muito pequenas */
+@media (max-width: 480px) {
+    .chart-container {
+        width: 98%;
+        margin: 5px auto;
+        padding: 8px;
+    }
+
+    #tcoChart,
+    #grafico-economia {
+        max-height: 250px;
+    }
+
+    .chart-container h2 {
+        font-size: 1rem;
+    }
+
+    .chart-container p {
+        font-size: 0.8rem;
+        margin-bottom: 15px;
+    }
+}
+
+/* Melhorias para a responsividade dos gráficos Chart.js */
+@media (max-width: 768px) {
+    canvas {
+        max-width: 100% !important;
+        min-height: 400px;
+        height: auto !important;
     }
 }
 
