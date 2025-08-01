@@ -672,7 +672,8 @@ header img {
 
     #tcoChart,
     #grafico-economia {
-        max-height: 300px; /* Limita a altura para evitar gráficos muito altos em telas pequenas */
+        max-height: 300px;
+        /* Limita a altura para evitar gráficos muito altos em telas pequenas */
     }
 
     .chart-container h2 {
@@ -717,3 +718,83 @@ header img {
     }
 }
 
+.input-container {
+    position: relative;
+    display: inline-block;
+}
+
+.input-container input {
+    padding-right: 32px;
+    /* Espaço para o ícone */
+    height: 36px;
+    font-size: 16px;
+}
+
+.input-container .tooltip {
+    position: absolute;
+    right: 8px;
+    top: 40%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 2;
+}
+
+.input-container .question-mark {
+    background: #BBDDFF;
+    color: #ffffff;
+    border-radius: 50%;
+    margin: auto 0px;
+    padding: 0px 4px 1px 4px;
+    font-weight: bold;
+    font-size: 12px;
+    border: 1px solid #BBDDFF;
+    transition: background 0.3s;
+    display: inline-block;
+    line-height: 1;
+}
+
+.input-container .question-mark:hover {
+    background: #2B88C8;
+}
+
+.input-container .tooltip-text {
+    visibility: hidden;
+    width: 220px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 5px;
+    padding: 8px;
+    position: absolute;
+    right: 120%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.input-container .tooltip-text p {
+    color: #fff;
+    font-size: 12px;
+}
+
+
+
+.input-container .tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* seta do tooltip */
+.input-container .tooltip-text::after {
+    content: "";
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent #333;
+}

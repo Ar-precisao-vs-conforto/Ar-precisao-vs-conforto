@@ -47,7 +47,8 @@
 
             <!-- Botões das Abas -->
             <div class="tab-nav">
-                <button id="button-parametros" class="tab-button active" onclick="showTab('parametros')">Parâmetros</button>
+                <button id="button-parametros" class="tab-button active"
+                    onclick="showTab('parametros')">Parâmetros</button>
                 <button id="button-calculos" class="tab-button" onclick="showTab('calculos')">Cálculos</button>
                 <button id="button-resultados" class="tab-button" onclick="showTab('resultados')">Resultados</button>
                 <button id="button-graficos" class="tab-button" onclick="showTab('graficos')">Gráficos</button>
@@ -73,15 +74,37 @@
                         </div>
 
                         <h3>Cargas Térmicas</h3>
-                        <p>Fontes de calor no ambiente (kW)</p>
+                        <p> Fontes de calor no ambiente (kW) </p>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="equipamentos-ti">Equipamentos TI (kW)*</label>
-                                <input type="number" id="equipamentos-ti" placeholder="15,8" step="0.1">
+                                <label for="equipamentos-ti">Equipamentos TI (Kw)* </label>
+                                <div class="input-container">
+                                    <input type="number" id="equipamentos-ti" placeholder="15,8" step="0.1">
+                                    <span class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltip-text">
+                                            <p>Carga térmica de TI é a quantidade de calor gerada pelos equipamentos de tecnologia da informação (como servidores,
+                                            switches e storages).</p>
+
+                                            <p>
+                                                Para obter a carga de TI do seu data center, some a potência (em Watts) de todos os equipamentos de TI ativos no data center.
+                                            </p>
+                                        </span>
+                                    </span>
+                                </div>
+
                             </div>
                             <div class="form-group">
                                 <label for="pessoas">Pessoas (Qtd)*</label>
-                                <input type="number" id="pessoas" placeholder="2" step="1">
+                                <div class="input-container">
+                                    <input type="number" id="pessoas" placeholder="2" step="1">
+                                    <span class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltip-text">
+                                           <p>Informe a quantidade de possoas que irão trabalhar dentro ambiente do data center.</p>
+                                        </span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -103,12 +126,20 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="custo-energia">Custo energia (R$/kWh)</label>
-                                <input type="number" id="custo-energia" placeholder="0,55" step="0.01">
+                                <div class="input-container">
+                                    <input type="number" id="custo-energia" placeholder="0,55" step="0.01">
+                                    <span class="tooltip">
+                                        <span class="question-mark">?</span>
+                                        <span class="tooltip-text">
+                                            <p>Você pode obter o valor do Kwh em sua fatuara de energia</p>                                            
+                                            <p>Caso não tenha acesso a fatura, tudo bem! Usaremos o valor médio do Brasil para continuar os cálculos.</p>
+                                        </span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
-                        <p>Se você não souber o valor do kWh, tudo bem!</p>
-                        <p>Usaremos o valor médio do Brasil para continuar os cálculos.</p>
+                        
                     </div>
                 </div>
 
@@ -141,7 +172,7 @@
 
                     <!-- Dimenssionamento -->
                     <div class="result-card">
-                        <h3>Dimenssionamento</h3>
+                        <h3>Dimensionamento</h3>
 
                         <h4 style="color: rgb(52, 110, 216);">Ar condicionado de conforto</h4>
                         <div class="result-values">
@@ -156,7 +187,7 @@
                         </div>
                         <hr>
 
-                        <h4 style="color: rgb(16, 223, 16);" >Ar condicionado de precisão</h4>
+                        <h4 style="color: rgb(16, 223, 16);">Ar condicionado de precisão</h4>
                         <div class="result-values">
                             <span class="result-paramter">Quantidade:</span>
                             <span id="quantidade-precisao" class="result-value">--</span>

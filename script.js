@@ -51,7 +51,7 @@ function getInputs() {
 
     // Validação simples
     for (const key in inputs) {
-        if (inputs[key] <= 0) {
+        if (inputs[key] <= 0 && key != 'pessoas') {
             alert(`Por favor, insira um valor válido para ${key}.`);
             return null;
         }
@@ -171,13 +171,15 @@ function createPrompt(loadData) {
                 ---
                 **REGRAS E RACIOCÍNIO OBRIGATÓRIOS:**
                 **1. Análise para Ar-Condicionado de Conforto:**
-                    a. **Cálculo de Capacidade:** Com a "Carga Térmica para Ar Conforto" fornecida, selecione o modelo de ar condicionado de conforto padrão (18k, 24k, 30k, 36k, 48k, 57k BTUs). Use a menor quantidade de máquinas possível, priorizando máquinas mais potentes para atender a carga.
+                    a. **Cálculo de Capacidade:** Com a "Carga Térmica para Ar Conforto" fornecida, selecione o modelo de ar condicionado de conforto padrão (18000, 24000, 30000, 36000, 48000, 57000 BTUs). Use a menor quantidade de máquinas possível, priorizando máquinas mais potentes para atender a carga.
                     b. **Cálculo de Quantidade (24/7):** Determine a quantidade de máquinas necessárias para cobrir a carga térmica. Em seguida, **triplique** esse número para garantir a operação 24/7 em regime de revezamento. Essa é a quantidade final.
-                    c. **Pesquisa de Preço Realista:** Com base no modelo de BTU/h escolhido, pesquise em sua base de dados interna o preço unitário **realista** de um equipamento de **marca de primeira linha (ex: Fujitsu, Daikin, LG Inverter)** vendido por distribuidores especializados no Brasil. O valor deve ser numérico, sem "R$".
+                    c. **Pesquisa de Preço Realista:** Com base no modelo de BTU/h escolhido, pesquise em sua base de dados interna o preço unitário **realista** de um equipamento de **marca de primeira linha (ex: Fujitsu, Daikin, LG Inverter)** vendido por distribuidores especializados no Brasil. O valor deve ser numérico, sem "R$".                    
+                    d. **Exemplo de dimensionamento:** carga térmica de 17000 BTUS, é necessário 1 ar de 18000, logo para trabalha 24/7 devem ter 3 ar de 18000 btus
+                    e. verifique se o valor pesquisado está proximos dos valores médios de mercado, um boa aproixmação é 165.56x + 339.17, onde x é a poteencia em BTUS do ar condicionado.
                 **2. Análise para Ar-Condicionado de Precisão:**
-                    a. **Cálculo de Quantidade e Redundância (N+1):** Com a "Carga Térmica para Ar Precisão" fornecida, determine a menor quantidade de máquinas necessárias para cobrir a carga. Em seguida, **adicione uma (1) unidade** para redundância (N+1). Essa é a quantidade final.
+                    a. **Cálculo de Quantidade e Redundância (N+1):** Com a "Carga Térmica para Ar Precisão" fornecida, determine a menor quantidade de máquinas necessárias para cobrir a carga. Em seguida, **adicione uma (1) unidade** para redundância (N+1). Essa é a quantidade final. Use a menor quantidade de máquinas possível, priorizando máquinas mais potentes para atender a carga.
                     b. **Cálculo de Potência Individual:** Divida a carga térmica total pela quantidade de máquinas operantes (N) para obter a potência individual de cada equipamento.
-                    c. **Pesquisa de Preço Realista:** Com base na potência individual calculada, pesquise em sua base de dados o preço unitário **realista** de um equipamento de precisão de **marcas renomadas (ex: Vertiv, Stulz, Schneider Electric)**. O valor deve ser numérico.
+                    c. **Pesquisa de Preço Realista:** Com base na potência individual calculada, pesquise em sua base de dados o preço unitário **realista** de um equipamento de precisão de **marcas renomadas (ex: Vertiv e Rittal)**.
                 ---
                 **DADOS DE ENTRADA PARA ANÁLISE:**
                 - Carga Térmica para Ar Conforto: ${loadData.potenciaArConforto} BTU/h
@@ -211,7 +213,11 @@ function calculateFinalResults(thermalLoad, geminiData, inputs) {
     const { ArConforto, ArPrecisao } = geminiData;
 
     const investEquipamentosConforto = ArConforto.quantidade * ArConforto.valor_unitario;
-    const investEquipamentosPrecisao = ArPrecisao.quantidade * ArPrecisao.valor_unitario;
+    let investEquipamentosPrecisao = ArPrecisao.quantidade * ArPrecisao.valor_unitario;
+
+    if (investEquipamentosPrecisao < (investEquipamentosConforto * 2.2) && investEquipamentosPrecisao > (investEquipamentosConforto * 4)) {
+        investEquipamentosPrecisao = investEquipamentosConforto * 2.5;
+    }
 
     const investInstalacaoConforto = ArConforto.quantidade * CUSTO_INSTALACAO_CONFORTO;
     const investInstalacaoPrecisao = ArPrecisao.quantidade * CUSTO_INSTALACAO_PRECISAO;
@@ -449,6 +455,9 @@ function renderTCOChart(results) {
  * calcula os resultados finais e atualiza a interface do usuário e os gráficos.
  */
 async function calcularTCO() {
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     const inputs = getInputs();
     if (!inputs) return;
 
@@ -479,6 +488,7 @@ async function calcularTCO() {
         renderTCOChart(finalResults);
         updateUI(thermalLoad, geminiData, finalResults);
         showTab('calculos');
+        setTimeout(rolarParaAbas, 300);
     } catch (error) {
         console.error("Erro no processo de cálculo:", error);
         showError();
@@ -486,3 +496,41 @@ async function calcularTCO() {
         toggleLoading(false);
     }
 }
+
+function rolarParaAbas() {
+    const divAbas = document.querySelector('.tabs');
+    if (divAbas) {
+        divAbas.scrollIntoView({
+            behavior: 'smooth',    // 'smooth' ou 'auto'
+            block: 'start'         // 'start', 'center', 'end'
+        });
+    }
+}
+
+function adicionarEventListenersEnter() {
+    const camposParametros = [
+        'area',
+        'pe-direito',
+        'equipamentos-ti',
+        'pessoas',
+        'horas-dia',
+        'dias-mes',
+        'custo-energia'
+    ];
+
+    camposParametros.forEach(function (campoId) {
+        const campo = document.getElementById(campoId);
+        if (campo) {
+            campo.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter' || event.keyCode === 13) {
+                    event.preventDefault();
+                    calcularTCO();
+                }
+            });
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    adicionarEventListenersEnter();
+});
