@@ -12,10 +12,10 @@ const FATOR_TROCA_PAREDES = 8.8;
 const WATTS_PARA_BTU = 3.412;
 const FATOR_SENSIBILIDADE_CONFORTO = 0.65;
 const FATOR_SENSIBILIDADE_PRECISAO = 0.90;
-const CUSTO_MANUTENCAO_MENSAL_CONFORTO = 1000; // Valor por equipamento
-const CUSTO_MANUTENCAO_MENSAL_PRECISAO = 2000; // Valor por equipamento
-const CUSTO_INSTALACAO_CONFORTO = 1000;
-const CUSTO_INSTALACAO_PRECISAO = 2000;
+const CUSTO_MANUTENCAO_MENSAL_CONFORTO = 250; // Valor por equipamento
+const CUSTO_MANUTENCAO_MENSAL_PRECISAO = 800; // Valor por equipamento
+const CUSTO_INSTALACAO_CONFORTO = 1200;
+const CUSTO_INSTALACAO_PRECISAO = 3800;
 
 let tcoChartInstance = null;
 let economiaInstance = null;
@@ -72,6 +72,21 @@ function updateUI(thermalLoad, geminiData, results) {
     const formatCalculosVirgula = (value) => value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const formatCalculos = (value) => value.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
+    // Aba Cálculos  
+    document.getElementById('carga-termica').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1.2 / 1000) + ' Kw';
+    document.getElementById('carga-seguranca').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1000) + ' Kw';
+    document.getElementById('carga-conforto').textContent = formatCalculos(thermalLoad.potenciaArConforto) + ' Btus';
+    document.getElementById('carga-precisao').textContent = formatCalculos(thermalLoad.potenciaArPrecisao) + ' Btus';
+
+    document.getElementById('quantidade-conforto').textContent = formatCalculos(ArConforto.quantidade) + ' Equipamentos';
+    document.getElementById('capacidade-conforto').textContent = formatCalculos(ArConforto.potencia_btus) + ' Btus';
+    document.getElementById('potencia-media-conforto').textContent = formatCalculos(ArConforto.potencia_btus / WATTS_PARA_BTU) + ' Watts';
+
+    document.getElementById('quantidade-precisao').textContent = formatCalculos(ArPrecisao.quantidade) + ' Equipamentos';
+    document.getElementById('capacidade-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus) + ' Btus';
+    document.getElementById('potencia-media-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus / WATTS_PARA_BTU) + ' Watts';
+
+    // Aba Resultados
     document.getElementById('equipamentos-conforto').textContent = formatCurrency(results.investEquipamentosConforto);
     document.getElementById('instalacao-conforto').textContent = formatCurrency(results.investInstalacaoConforto);
     document.getElementById('invest-conforto').textContent = formatCurrency(results.investConforto);
@@ -86,31 +101,42 @@ function updateUI(thermalLoad, geminiData, results) {
     document.getElementById('manutencao-precisao').textContent = formatCurrency(results.custoAnualManutencaoPrecisao / 12);
     document.getElementById('custo-mensal-precisao').textContent = formatCurrency(results.custoMensalPrecisao);
 
+    // Análise financeira
+    let invert = results.economiaAnual < 0 ? -1 : 1;
+
     document.getElementById('investimento-adicional').textContent = formatCurrency(results.investimentoAdicional);
-    document.getElementById('economia-anual').textContent = formatCurrency(results.economiaAnual);
-    document.getElementById('payback').textContent = isFinite(results.payback) ? `${results.payback.toFixed(1)} anos` : 'Não aplicável';
-    document.getElementById('roi').textContent = `${results.roi.toFixed(0)} %`;
+    document.getElementById('economia-anual').textContent = formatCurrency(results.economiaAnual * invert);
+    document.getElementById('payback').textContent = `${(results.payback).toFixed(1)} anos`;
+    document.getElementById('roi').textContent = `${(results.roi).toFixed(0)} %`;
 
-    document.getElementById('carga-termica').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1.2 / 1000) + ' Kw';
-    document.getElementById('carga-seguranca').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1000) + ' Kw';
-    document.getElementById('carga-conforto').textContent = formatCalculos(thermalLoad.potenciaArConforto) + ' Btus';
-    document.getElementById('carga-precisao').textContent = formatCalculos(thermalLoad.potenciaArPrecisao) + ' Btus';
+    if (results.economiaAnual > 0) {
+        document.querySelector('.summary-metrics').style.margin = "20px 0px";
+        document.getElementById('investimento').textContent = 'Investimento Adicional';
+        document.getElementById('ar-mais-vantajoso').textContent = 'Com ar condicionado de precisão';
+        document.getElementById('div-payback').style.display = 'block';
+        document.getElementById('div-roi').style.display = 'block';
+        document.getElementById('alerta-conforto').style.display = 'none';
+    }
 
-    document.getElementById('quantidade-conforto').textContent = formatCalculos(ArConforto.quantidade) + ' Equipamentos';
-    document.getElementById('capacidade-conforto').textContent = formatCalculos(ArConforto.potencia_btus) + ' Btus';
-    document.getElementById('potencia-media-conforto').textContent = formatCalculos(ArConforto.potencia_btus / WATTS_PARA_BTU) + ' Watts';
+    else {
+        document.querySelector('.summary-metrics').style.margin = "20px 100px";
+        document.getElementById('investimento').textContent = 'Economia no Investimento';
+        document.getElementById('ar-mais-vantajoso').textContent = 'Com ar condicionado de conforto';
+        document.getElementById('div-payback').style.display = 'none';
+        document.getElementById('div-roi').style.display = 'none';
+        document.getElementById('alerta-conforto').style.display = 'block';
+    }
 
-    document.getElementById('quantidade-precisao').textContent = formatCalculos(ArPrecisao.quantidade) + ' Equipamentos';
-    document.getElementById('capacidade-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus) + ' Btus';
-    document.getElementById('potencia-media-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus / WATTS_PARA_BTU) + ' Watts';
 
-    document.querySelectorAll('.disclaimer-box').forEach(el => {
-        el.style.display = 'block';
-    });
     document.querySelector('.apresentacao-resultados').style.display = 'block';
     document.querySelector('.calculos-content').style.display = 'grid';
     document.querySelector('.results-grid').style.display = 'grid';
     document.querySelectorAll('.chart-container').forEach(el => {
+        el.style.display = 'block';
+    });
+
+    // Mosta aviso em todas abas
+    document.querySelectorAll('.disclaimer-box').forEach(el => {
         el.style.display = 'block';
     });
 }
@@ -180,6 +206,7 @@ function createPrompt(loadData) {
                     a. **Cálculo de Quantidade e Redundância (N+1):** Com a "Carga Térmica para Ar Precisão" fornecida, determine a menor quantidade de máquinas necessárias para cobrir a carga. Em seguida, **adicione uma (1) unidade** para redundância (N+1). Essa é a quantidade final. Use a menor quantidade de máquinas possível, priorizando máquinas mais potentes para atender a carga.
                     b. **Cálculo de Potência Individual:** Divida a carga térmica total pela quantidade de máquinas operantes (N) para obter a potência individual de cada equipamento.
                     c. **Pesquisa de Preço Realista:** Com base na potência individual calculada, pesquise em sua base de dados o preço unitário **realista** de um equipamento de precisão de **marcas renomadas (ex: Vertiv e Rittal)**.
+                    
                 ---
                 **DADOS DE ENTRADA PARA ANÁLISE:**
                 - Carga Térmica para Ar Conforto: ${loadData.potenciaArConforto} BTU/h
@@ -215,8 +242,8 @@ function calculateFinalResults(thermalLoad, geminiData, inputs) {
     const investEquipamentosConforto = ArConforto.quantidade * ArConforto.valor_unitario;
     let investEquipamentosPrecisao = ArPrecisao.quantidade * ArPrecisao.valor_unitario;
 
-    if (investEquipamentosPrecisao < (investEquipamentosConforto * 2.2) && investEquipamentosPrecisao > (investEquipamentosConforto * 4)) {
-        investEquipamentosPrecisao = investEquipamentosConforto * 2.5;
+    if (investEquipamentosPrecisao < (investEquipamentosConforto * 2.5) || investEquipamentosPrecisao > (investEquipamentosConforto * 4)) {
+        investEquipamentosPrecisao = investEquipamentosConforto * 3;
     }
 
     const investInstalacaoConforto = ArConforto.quantidade * CUSTO_INSTALACAO_CONFORTO;
@@ -252,9 +279,9 @@ function calculateFinalResults(thermalLoad, geminiData, inputs) {
     const economiaAnualTotal = economiaAnualEnergia + economiaAnualManutencao;
 
     // Payback
-    const payback = economiaAnualTotal > 0 ? investimentoAdicional / economiaAnualTotal : Infinity;
+    const payback = investimentoAdicional / economiaAnualTotal;
 
-    const roi = (economiaAnualTotal * 10 - investPrecisao) * 100 / investPrecisao;
+    const roi = (economiaAnualTotal * 10 - investimentoAdicional) * 100 / investimentoAdicional;
 
     return {
         investEquipamentosConforto,
@@ -283,7 +310,18 @@ function calculateFinalResults(thermalLoad, geminiData, inputs) {
  * @param {object} results - Os resultados financeiros para renderizar os gráficos.
  */
 function renderTCOChart(results) {
-    const years = Array.from({ length: 11 }, (_, i) => i); // 0 a 10 anos
+
+    let tempo;
+    if (results.payback > 0) {
+        tempo = Math.ceil(results.payback);
+        multiplicador = -1;
+    } else {
+        tempo = 10;
+        multiplicador = 1;
+    }
+
+
+    const years = Array.from({ length: tempo + 6 }, (_, i) => i);
 
     const tcoConfortoData = years.map(year =>
         results.investConforto + (results.custoMensalConforto * 12 * year)
@@ -292,9 +330,11 @@ function renderTCOChart(results) {
         results.investPrecisao + (results.custoMensalPrecisao * 12 * year)
     );
 
+
     const economiaAnos = years.map(year =>
-        -results.investPrecisao + (results.economiaAnual * year)
+        multiplicador * results.investimentoAdicional + (results.economiaAnual * year) * (multiplicador * -1)
     );
+
 
     const ctx = document.getElementById('tcoChart').getContext('2d');
     const ctx2 = document.getElementById('grafico-economia').getContext('2d');
@@ -308,6 +348,8 @@ function renderTCOChart(results) {
     if (economiaInstance) {
         economiaInstance.destroy();
     }
+
+
 
     tcoChartInstance = new Chart(ctx, {
         type: 'line',
@@ -411,7 +453,7 @@ function renderTCOChart(results) {
                 },
                 subtitle: {
                     display: true,
-                    text: 'Economia do ar de precisão em relação ao ar de conforto ao longo dos anos',
+                    text: 'Economia acumulada ao longo dos anos',
                     font: { size: 10 },
                     padding: {
                         bottom: 40
@@ -536,3 +578,64 @@ function adicionarEventListenersEnter() {
 document.addEventListener('DOMContentLoaded', function () {
     adicionarEventListenersEnter();
 });
+
+
+
+// ========================================
+// CORREÇÃO PARA TOOLTIPS EM iOS
+// ========================================
+
+/**
+ * Detecta se é dispositivo touch
+ */
+function isTouchDevice() {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
+/**
+ * Corrige tooltips para dispositivos iOS/touch
+ */
+function adicionarCorrecaoTooltipIOS() {
+    if (isTouchDevice()) {
+        const tooltips = document.querySelectorAll('.input-container .tooltip');
+
+        tooltips.forEach(function (tooltip) {
+            tooltip.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const tooltipText = this.querySelector('.tooltip-text');
+                const isVisible = tooltipText.style.visibility === 'visible';
+
+                // Esconder todos os tooltips
+                document.querySelectorAll('.tooltip-text').forEach(function (tt) {
+                    tt.style.visibility = 'hidden';
+                    tt.style.opacity = '0';
+                });
+
+                // Mostrar o atual se não estava visível
+                if (!isVisible) {
+                    tooltipText.style.visibility = 'visible';
+                    tooltipText.style.opacity = '1';
+                }
+            });
+        });
+
+        // Fechar tooltips ao clicar fora
+        document.addEventListener('click', function (event) {
+            if (!event.target.closest('.tooltip')) {
+                document.querySelectorAll('.tooltip-text').forEach(function (tt) {
+                    tt.style.visibility = 'hidden';
+                    tt.style.opacity = '0';
+                });
+            }
+        });
+    }
+}
+
+// Chamar a função de correção de tooltip no DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function () {
+    adicionarCorrecaoTooltipIOS();
+});
+
+

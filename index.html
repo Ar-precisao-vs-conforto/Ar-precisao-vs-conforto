@@ -65,11 +65,11 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="area">Área (m²)*</label>
-                                <input type="number" id="area" placeholder="35,0">
+                                <input type="number" id="area" placeholder="Ex: 35,0">
                             </div>
                             <div class="form-group">
                                 <label for="pe-direito">Pé direito (m)*</label>
-                                <input type="number" id="pe-direito" placeholder="3,0" step="0.1">
+                                <input type="number" id="pe-direito" placeholder="Ex: 3,0" step="0.1">
                             </div>
                         </div>
 
@@ -79,7 +79,7 @@
                             <div class="form-group">
                                 <label for="equipamentos-ti">Equipamentos TI (Kw)* </label>
                                 <div class="input-container">
-                                    <input type="number" id="equipamentos-ti" placeholder="15,8" step="0.1">
+                                    <input type="number" id="equipamentos-ti" placeholder="Ex: 15,8" step="0.1">
                                     <span class="tooltip">
                                         <span class="question-mark">?</span>
                                         <span class="tooltip-text">
@@ -97,7 +97,7 @@
                             <div class="form-group">
                                 <label for="pessoas">Pessoas (Qtd)*</label>
                                 <div class="input-container">
-                                    <input type="number" id="pessoas" placeholder="2" step="1">
+                                    <input type="number" id="pessoas" placeholder="Ex: 2" step="1">
                                     <span class="tooltip">
                                         <span class="question-mark">?</span>
                                         <span class="tooltip-text">
@@ -116,18 +116,18 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="horas-dia">Horas/dia*</label>
-                                <input type="number" id="horas-dia" placeholder="24">
+                                <input type="number" id="horas-dia" placeholder="Ex: 24">
                             </div>
                             <div class="form-group">
                                 <label for="dias-mes">Dias/mês*</label>
-                                <input type="number" id="dias-mes" placeholder="30">
+                                <input type="number" id="dias-mes" placeholder="Ex: 30">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="custo-energia">Custo energia (R$/kWh)</label>
                                 <div class="input-container">
-                                    <input type="number" id="custo-energia" placeholder="0,55" step="0.01">
+                                    <input type="number" id="custo-energia" placeholder="Ex: 0,55" step="0.01">
                                     <span class="tooltip">
                                         <span class="question-mark">?</span>
                                         <span class="tooltip-text">
@@ -285,27 +285,51 @@
                 <!-- Métricas Financeiras -->
                 <div class="apresentacao-resultados">
                     <h2>Análise Financeira</h2>
-                    <h3>Com ar condicionado de precisão</h3>
+                    <h3 id="ar-mais-vantajoso"></h3>
 
                     <div class="summary-metrics">
                         <div class="metric">
-                            <div class="metric-label">Investimento Adicional</div>
+                            <div id="investimento" class="metric-label">Investimento Adicional</div>
                             <div class="metric-value red" id="investimento-adicional">R$ ---</div>
                         </div>
                         <div class="metric">
                             <div class="metric-label">Economia Anual</div>
                             <div class="metric-value green" id="economia-anual">R$ ---</div>
                         </div>
-                        <div class="metric">
+                        <div id="div-payback" class="metric">
                             <div class="metric-label">Payback</div>
                             <div class="metric-value blue" id="payback"> --- ANOS</div>
                         </div>
-                        <div class="metric">
+                        <div id="div-roi" class="metric">
                             <div class="metric-label">ROI (10 Anos)</div>
                             <div class="metric-value purple" id="roi"> --- %</div>
                         </div>
                     </div>
-                </div>
+
+                    <div id="alerta-conforto" class="alerta-conforto">
+
+                        <p>O ar-condicionado de conforto apresenta maior viabilidade econômica para o seu ambiente. No entanto, é importante ressaltar que a escolha do sistema de climatização vai muito além do fator econômico.</p>
+                        
+                        <p>O ar-condicionado de precisão oferece diversas vantagens essenciais para ambientes críticos</p>
+
+                        <ul>
+                            <li><strong>Controle rigoroso da umidade:</strong> Fundamental para evitar problemas de condensação e estática, protegendo equipamentos
+                            sensíveis.</li>
+
+                            <li><strong>Maior robustez e confiabilidade:</strong> Projetado para operar 24 horas por dia, 7 dias por semana, reduzindo o risco de falhas
+                            e interrupções.</li>
+
+                            <li><strong>Distribuição de ar mais eficiente:</strong> Garante temperatura homogênea, mantendo todos os equipamentos dentro dos parâmetros
+                            ideais.</li>
+
+                            <li><strong>Monitoramento e alarmes integrados:</strong> Facilita a gestão do ambiente e permite respostas rápidas a qualquer anormalidade.</li>
+
+                        </ul>
+                        
+                        <p>Portanto, mesmo que o ar-condicionado de conforto inicialmente aparente ser mais vantajoso financeiramente, não deixe de
+                        considerar todos os benefícios operacionais, de segurança e de proteção que o ar de precisão pode oferecer ao seu ambiente.</p>  
+                    </div>
+                </div>                
 
                 <!-- Aviso -->
                 <div class="disclaimer-box">

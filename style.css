@@ -150,7 +150,7 @@ header img {
 }
 
 .form-grid input::placeholder {
-    opacity: 0.4;
+    opacity: 0.3;
 }
 
 .form-section {
@@ -292,6 +292,67 @@ header img {
     text-align: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     display: none;
+}
+
+.alerta-conforto {
+    background-color: #BBDDFF;
+    /* amarelo claro para alerta */
+    border-left: 6px solid #2B88C8;
+    /* faixa lateral para destaque */
+    border-radius: 10px;
+    padding: 24px 28px;
+    max-width: 800px;
+    margin: 18px auto;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+    font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+    color: #3a2d0b;
+}
+
+.alerta-conforto strong {
+    color: #003366;
+    font-weight: bold;
+}
+
+.alerta-conforto p {
+    margin-top: 0;
+    margin-bottom: 1em;
+    font-size: 1.08em;
+    line-height: 1.7;
+    text-align: justify;
+}
+
+.alerta-conforto ul {
+    margin: 0 0 1em 0;
+    padding-left: 22px;
+    list-style: none;
+}
+
+.alerta-conforto ul li {
+    position: relative;
+    margin-bottom: 0.8em;
+    padding-left: 30px;
+    font-size: 1em;
+    text-align: left;
+}
+
+.alerta-conforto ul li::before {
+    content: '❄️';
+    /* Ícone para reforçar o destaque do alerta */
+    position: absolute;
+    left: 0;
+    top: 1px;
+    color: #f6b10a;
+    font-size: 1.1em;
+    font-weight: bold;
+    line-height: 1;
+
+}
+
+@media (max-width: 600px) {
+    .alerta-conforto {
+        padding: 14px 8px;
+        font-size: 0.97em;
+    }
 }
 
 /* Gráficos */
@@ -737,6 +798,8 @@ header img {
     transform: translateY(-50%);
     cursor: pointer;
     z-index: 2;
+    /* CORREÇÃO iOS: Remover highlight azul */
+    -webkit-tap-highlight-color: transparent;
 }
 
 .input-container .question-mark {
@@ -773,6 +836,7 @@ header img {
     transition: opacity 0.3s;
     font-size: 13px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
 }
 
 .input-container .tooltip-text p {
@@ -780,9 +844,15 @@ header img {
     font-size: 12px;
 }
 
-
-
+/* HOVER para desktop */
 .input-container .tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* CORREÇÃO iOS: Adicionar suporte para :active e classe .show-tooltip */
+.input-container .tooltip:active .tooltip-text,
+.input-container .tooltip.show-tooltip .tooltip-text {
     visibility: visible;
     opacity: 1;
 }
@@ -797,4 +867,36 @@ header img {
     border-width: 6px;
     border-style: solid;
     border-color: transparent transparent transparent #333;
+}
+
+/* CORREÇÃO iOS: Para dispositivos touch, desabilitar hover e usar apenas click */
+@media (hover: none) and (pointer: coarse) {
+    .input-container .tooltip:hover .tooltip-text {
+        visibility: hidden;
+        opacity: 0;
+    }
+
+    .input-container .tooltip:active .tooltip-text,
+    .input-container .tooltip.show-tooltip .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+/* Responsividade para tooltips em mobile */
+@media (max-width: 768px) {
+    .input-container .tooltip-text {
+        width: 200px;
+        right: 100%;
+        font-size: 12px;
+        padding: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .input-container .tooltip-text {
+        width: 180px;
+        font-size: 11px;
+        padding: 5px;
+    }
 }
