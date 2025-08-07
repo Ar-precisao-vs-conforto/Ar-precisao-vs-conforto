@@ -47,6 +47,7 @@ header img {
 .container {
     width: 90%;
     max-width: 920px;
+    min-height: 100vh;
     margin: 0 auto;
     padding: 40px 0;
 }
@@ -381,7 +382,7 @@ header img {
 #tcoChart {
     max-height: 600px;
     width: 100% !important;
-    height: auto !important;
+    height: 35vw !important;
 }
 
 #grafico-economia {
@@ -899,4 +900,13 @@ header img {
         font-size: 11px;
         padding: 5px;
     }
+}
+
+footer {
+
+    height: 100px;
+    background: linear-gradient(to bottom, #012c4900, #012c49d7,#012c49, #012c49);
+    color: white;
+    padding: 60px 0px 0px 25px;
+    font-size: 8pt;
 }

@@ -43,7 +43,7 @@ function getInputs() {
         area: parseFloat(document.getElementById('area').value) || 0,
         peDireito: parseFloat(document.getElementById('pe-direito').value) || 0,
         equipamentosTI: parseFloat(document.getElementById('equipamentos-ti').value) || 0,
-        pessoas: parseInt(document.getElementById('pessoas').value) || 0,
+        pessoas: document.getElementById('pessoas').value === '' ? null : parseInt(document.getElementById('pessoas').value, 10),
         custoEnergia: parseFloat(document.getElementById('custo-energia').value) || 0.55,
         horasDia: parseFloat(document.getElementById('horas-dia').value) || 0,
         diasMes: parseFloat(document.getElementById('dias-mes').value) || 0,
@@ -55,6 +55,11 @@ function getInputs() {
             alert(`Por favor, insira um valor válido para ${key}.`);
             return null;
         }
+    }
+
+    if (inputs['pessoas'] === null || isNaN(inputs['pessoas'])) {
+        alert(`Por favor, insira um valor válido para pessoas.`);
+        return null;
     }
     return inputs;
 }
@@ -90,47 +95,37 @@ function updateUI(thermalLoad, geminiData, results) {
     document.getElementById('equipamentos-conforto').textContent = formatCurrency(results.investEquipamentosConforto);
     document.getElementById('instalacao-conforto').textContent = formatCurrency(results.investInstalacaoConforto);
     document.getElementById('invest-conforto').textContent = formatCurrency(results.investConforto);
-    document.getElementById('energia-conforto').textContent = formatCurrency(results.custoAnualEnergiaConforto / 12);
-    document.getElementById('manutencao-conforto').textContent = formatCurrency(results.custoAnualManutencaoConforto / 12);
+    document.getElementById('energia-conforto').textContent = formatCurrency(results.custoMensalEnergiaConforto);
+    document.getElementById('manutencao-conforto').textContent = formatCurrency(results.custoMensalManutencaoConforto);
     document.getElementById('custo-mensal-conforto').textContent = formatCurrency(results.custoMensalConforto);
 
     document.getElementById('equipamentos-precisao').textContent = formatCurrency(results.investEquipamentosPrecisao);
     document.getElementById('instalacao-precisao').textContent = formatCurrency(results.investInstalacaoPrecisao);
     document.getElementById('invest-precisao').textContent = formatCurrency(results.investPrecisao);
-    document.getElementById('energia-precisao').textContent = formatCurrency(results.custoAnualEnergiaPrecisao / 12);
-    document.getElementById('manutencao-precisao').textContent = formatCurrency(results.custoAnualManutencaoPrecisao / 12);
+    document.getElementById('energia-precisao').textContent = formatCurrency(results.custoMensalEnergiaPrecisao);
+    document.getElementById('manutencao-precisao').textContent = formatCurrency(results.custoMensalManutencaoPrecisao);
     document.getElementById('custo-mensal-precisao').textContent = formatCurrency(results.custoMensalPrecisao);
 
-    // Análise financeira
-    let invert = results.economiaAnual < 0 ? -1 : 1;
-
     document.getElementById('investimento-adicional').textContent = formatCurrency(results.investimentoAdicional);
-    document.getElementById('economia-anual').textContent = formatCurrency(results.economiaAnual * invert);
+    document.getElementById('economia-anual').textContent = formatCurrency(results.economiaMensal * 12);   
     document.getElementById('payback').textContent = `${(results.payback).toFixed(1)} anos`;
-    document.getElementById('roi').textContent = `${(results.roi).toFixed(0)} %`;
+    document.getElementById('economia-10-anos').textContent = formatCurrency(results.economiaMensal * 120);
 
-    if (results.economiaAnual > 0) {
-        document.querySelector('.summary-metrics').style.margin = "20px 0px";
-        document.getElementById('investimento').textContent = 'Investimento Adicional';
+    if (results.melhorAr == "precisao") {
         document.getElementById('ar-mais-vantajoso').textContent = 'Com ar condicionado de precisão';
-        document.getElementById('div-payback').style.display = 'block';
-        document.getElementById('div-roi').style.display = 'block';
+        document.getElementById('investimento').textContent = 'Investimento Adicional';         
         document.getElementById('alerta-conforto').style.display = 'none';
     }
 
-    else {
-        document.querySelector('.summary-metrics').style.margin = "20px 100px";
-        document.getElementById('investimento').textContent = 'Economia no Investimento';
+    if (results.melhorAr == "conforto") {
         document.getElementById('ar-mais-vantajoso').textContent = 'Com ar condicionado de conforto';
-        document.getElementById('div-payback').style.display = 'none';
-        document.getElementById('div-roi').style.display = 'none';
+        document.getElementById('investimento').textContent = 'Economia no Investimento';  
         document.getElementById('alerta-conforto').style.display = 'block';
     }
 
-
-    document.querySelector('.apresentacao-resultados').style.display = 'block';
     document.querySelector('.calculos-content').style.display = 'grid';
     document.querySelector('.results-grid').style.display = 'grid';
+    document.querySelector('.apresentacao-resultados').style.display = 'block';   
     document.querySelectorAll('.chart-container').forEach(el => {
         el.style.display = 'block';
     });
@@ -231,20 +226,20 @@ function createPrompt(loadData) {
 /**
  * Calcula os resultados financeiros finais com base nos dados da carga térmica,
  * nos dados da API Gemini e nos inputs do usuário.
- * @param {object} thermalLoad - Dados da carga térmica.
  * @param {object} geminiData - Dados retornados pela API Gemini.
  * @param {object} inputs - Dados de entrada do usuário.
  * @returns {object} Um objeto contendo todos os resultados financeiros e de TCO.
  */
-function calculateFinalResults(thermalLoad, geminiData, inputs) {
+function calculateFinalResults(geminiData, inputs) {
     const { ArConforto, ArPrecisao } = geminiData;
 
     const investEquipamentosConforto = ArConforto.quantidade * ArConforto.valor_unitario;
-    let investEquipamentosPrecisao = ArPrecisao.quantidade * ArPrecisao.valor_unitario;
+    const investEquipamentosPrecisao = ArPrecisao.quantidade * ArPrecisao.valor_unitario;
 
-    if (investEquipamentosPrecisao < (investEquipamentosConforto * 2.5) || investEquipamentosPrecisao > (investEquipamentosConforto * 4)) {
-        investEquipamentosPrecisao = investEquipamentosConforto * 3;
-    }
+    //VERIFICAR NECESSIDADE DE "FILTRA RESPOSTA DA IA"
+    /* if (investEquipamentosPrecisao < (investEquipamentosConforto * 2.5) || investEquipamentosPrecisao > (investEquipamentosConforto * 4)) {
+         investEquipamentosPrecisao = investEquipamentosConforto * 3;
+    }*/
 
     const investInstalacaoConforto = ArConforto.quantidade * CUSTO_INSTALACAO_CONFORTO;
     const investInstalacaoPrecisao = ArPrecisao.quantidade * CUSTO_INSTALACAO_PRECISAO;
@@ -255,51 +250,59 @@ function calculateFinalResults(thermalLoad, geminiData, inputs) {
     const investimentoAdicional = investPrecisao - investConforto;
 
     // Consumo de Energia (kW)            
-    // Conforto: 1/3 das máquinas funcionam por vez
+    // Conforto: 1/3 das máquinas funcionam por vez - VERIFICAR CALCULO CORRETO DE ACORDO COM DIMENSIONAMENTO
     const consumoHorarioConforto = (ArConforto.quantidade / 3) * (ArConforto.potencia_btus / WATTS_PARA_BTU / 1000);
     // Precisão: N máquinas funcionam (N = total - 1)
     const consumoHorarioPrecisao = (ArPrecisao.quantidade - 1) * (ArPrecisao.potencia_btus / WATTS_PARA_BTU / 1000);
 
-    // Custo Anual com Energia
-    const horasAnuais = inputs.horasDia * inputs.diasMes * 12;
-    const custoAnualEnergiaConforto = consumoHorarioConforto * horasAnuais * inputs.custoEnergia;
-    const custoAnualEnergiaPrecisao = consumoHorarioPrecisao * horasAnuais * inputs.custoEnergia;
+    // Custo Mensal com Energia
+    const horasMensais = inputs.horasDia * inputs.diasMes;
+    const custoMensalEnergiaConforto = consumoHorarioConforto * horasMensais * inputs.custoEnergia;
+    const custoMensalEnergiaPrecisao = consumoHorarioPrecisao * horasMensais * inputs.custoEnergia;
 
-    // Custo Anual com Manutenção
-    const custoAnualManutencaoConforto = ArConforto.quantidade * CUSTO_MANUTENCAO_MENSAL_CONFORTO * 12;
-    const custoAnualManutencaoPrecisao = ArPrecisao.quantidade * CUSTO_MANUTENCAO_MENSAL_PRECISAO * 12;
+    // Custo Mensal com Manutenção
+    const custoMensalManutencaoConforto = ArConforto.quantidade * CUSTO_MANUTENCAO_MENSAL_CONFORTO;
+    const custoMensalManutencaoPrecisao = ArPrecisao.quantidade * CUSTO_MANUTENCAO_MENSAL_PRECISAO;
 
     // Custos mensais
-    const custoMensalConforto = custoAnualEnergiaConforto / 12 + custoAnualManutencaoConforto / 12;
-    const custoMensalPrecisao = custoAnualEnergiaPrecisao / 12 + custoAnualManutencaoPrecisao / 12;
+    const custoMensalConforto = custoMensalEnergiaConforto + custoMensalManutencaoConforto;
+    const custoMensalPrecisao = custoMensalEnergiaPrecisao + custoMensalManutencaoPrecisao;
 
-    // Economia Anual Total
-    const economiaAnualEnergia = custoAnualEnergiaConforto - custoAnualEnergiaPrecisao;
-    const economiaAnualManutencao = custoAnualManutencaoConforto - custoAnualManutencaoPrecisao;
-    const economiaAnualTotal = economiaAnualEnergia + economiaAnualManutencao;
+    // Economia Mesal Total
+    const economiaMensalEnergia = custoMensalEnergiaConforto - custoMensalEnergiaPrecisao;
+    const economiaMensalManutencao = custoMensalManutencaoConforto - custoMensalManutencaoPrecisao;
+    let economiaMensal = economiaMensalEnergia + economiaMensalManutencao;
 
-    // Payback
-    const payback = investimentoAdicional / economiaAnualTotal;
+    let payback;
+    let melhorAr;
 
-    const roi = (economiaAnualTotal * 10 - investimentoAdicional) * 100 / investimentoAdicional;
+    if (economiaMensal > 0) {
+        melhorAr = "precisao";
+        payback = investPrecisao / (economiaMensal * 12);
+
+    } else {
+        melhorAr = "conforto";
+        payback = investConforto / (-economiaMensal * 12);
+        economiaMensal *= -1;
+    }
 
     return {
         investEquipamentosConforto,
         investEquipamentosPrecisao,
         investInstalacaoConforto,
         investInstalacaoPrecisao,
-        investConforto, // Removed duplicate 'investInstalacaoConforto'
+        investConforto,
         investPrecisao,
         investimentoAdicional,
-        custoAnualEnergiaConforto,
-        custoAnualEnergiaPrecisao,
-        custoAnualManutencaoConforto,
-        custoAnualManutencaoPrecisao,
+        custoMensalEnergiaConforto,
+        custoMensalEnergiaPrecisao,
+        custoMensalManutencaoConforto,
+        custoMensalManutencaoPrecisao,
         custoMensalConforto,
         custoMensalPrecisao,
-        economiaAnual: economiaAnualTotal,
+        economiaMensal,
         payback,
-        roi,
+        melhorAr,
     };
 }
 
@@ -311,17 +314,12 @@ function calculateFinalResults(thermalLoad, geminiData, inputs) {
  */
 function renderTCOChart(results) {
 
-    let tempo;
-    if (results.payback > 0) {
-        tempo = Math.ceil(results.payback);
-        multiplicador = -1;
-    } else {
-        tempo = 10;
-        multiplicador = 1;
-    }
+    const interseccao = (results.investPrecisao - results.investConforto) / (results.custoMensalConforto*12 - results.custoMensalPrecisao*12);
+    const tempo = interseccao * 2 + 1;
 
+    console.log(interseccao);
 
-    const years = Array.from({ length: tempo + 6 }, (_, i) => i);
+    const years = Array.from({ length: tempo+1 }, (_, i) => i);
 
     const tcoConfortoData = years.map(year =>
         results.investConforto + (results.custoMensalConforto * 12 * year)
@@ -332,7 +330,7 @@ function renderTCOChart(results) {
 
 
     const economiaAnos = years.map(year =>
-        multiplicador * results.investimentoAdicional + (results.economiaAnual * year) * (multiplicador * -1)
+        results.investimentoAdicional + (results.economiaAnual * year)
     );
 
 
@@ -499,7 +497,6 @@ function renderTCOChart(results) {
 async function calcularTCO() {
 
     if (document.activeElement) document.activeElement.blur();
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     const inputs = getInputs();
@@ -523,10 +520,10 @@ async function calcularTCO() {
 
         const data = await response.json();
         const rawText = data.candidates[0].content.parts[0].text;
-        const cleanedText = rawText.replace(/```json\n?|```/g, ''); // Improved regex for cleaning
+        const cleanedText = rawText.replace(/```json\n?|```/g, '');
         const geminiData = JSON.parse(cleanedText);
 
-        const finalResults = calculateFinalResults(thermalLoad, geminiData, inputs);
+        const finalResults = calculateFinalResults(geminiData, inputs);
         await new Promise(resolve => setTimeout(resolve, 2000)); // Simula um atraso para UX
 
         renderTCOChart(finalResults);
