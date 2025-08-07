@@ -107,25 +107,25 @@ function updateUI(thermalLoad, geminiData, results) {
     document.getElementById('custo-mensal-precisao').textContent = formatCurrency(results.custoMensalPrecisao);
 
     document.getElementById('investimento-adicional').textContent = formatCurrency(results.investimentoAdicional);
-    document.getElementById('economia-anual').textContent = formatCurrency(results.economiaMensal * 12);   
+    document.getElementById('economia-anual').textContent = formatCurrency(results.economiaMensal * 12);
     document.getElementById('payback').textContent = `${(results.payback).toFixed(1)} anos`;
     document.getElementById('economia-10-anos').textContent = formatCurrency(results.economiaMensal * 120);
 
     if (results.melhorAr == "precisao") {
         document.getElementById('ar-mais-vantajoso').textContent = 'Com ar condicionado de precisão';
-        document.getElementById('investimento').textContent = 'Investimento Adicional';         
+        document.getElementById('investimento').textContent = 'Investimento Adicional';
         document.getElementById('alerta-conforto').style.display = 'none';
     }
 
     if (results.melhorAr == "conforto") {
         document.getElementById('ar-mais-vantajoso').textContent = 'Com ar condicionado de conforto';
-        document.getElementById('investimento').textContent = 'Economia no Investimento';  
+        document.getElementById('investimento').textContent = 'Economia no Investimento';
         document.getElementById('alerta-conforto').style.display = 'block';
     }
 
     document.querySelector('.calculos-content').style.display = 'grid';
     document.querySelector('.results-grid').style.display = 'grid';
-    document.querySelector('.apresentacao-resultados').style.display = 'block';   
+    document.querySelector('.apresentacao-resultados').style.display = 'block';
     document.querySelectorAll('.chart-container').forEach(el => {
         el.style.display = 'block';
     });
@@ -314,25 +314,29 @@ function calculateFinalResults(geminiData, inputs) {
  */
 function renderTCOChart(results) {
 
-    const interseccao = (results.investPrecisao - results.investConforto) / (results.custoMensalConforto*12 - results.custoMensalPrecisao*12);
-    const tempo = interseccao * 2 + 1;
+    const interseccaoTCO = (results.investPrecisao - results.investConforto) / (results.custoMensalConforto * 12 - results.custoMensalPrecisao * 12);
+    const tempoTCO = interseccaoTCO * 2 + 1;
+    const tempoECO = 10;
 
-    console.log(interseccao);
+    const yearsTCO = Array.from({ length: interseccaoTCO > 0 ? (tempoTCO + 1) : 11 }, (_, i) => i);
+    const yearsECO = Array.from({ length: tempoECO + 1 }, (_, i) => i);
 
-    const years = Array.from({ length: tempo+1 }, (_, i) => i);
-
-    const tcoConfortoData = years.map(year =>
+    const tcoConfortoData = yearsTCO.map(year =>
         results.investConforto + (results.custoMensalConforto * 12 * year)
     );
-    const tcoPrecisaoData = years.map(year =>
+    const tcoPrecisaoData = yearsTCO.map(year =>
         results.investPrecisao + (results.custoMensalPrecisao * 12 * year)
     );
 
 
-    const economiaAnos = years.map(year =>
-        results.investimentoAdicional + (results.economiaAnual * year)
-    );
+    let multiplicador = 1;
+    if (results.melhorAr == "precisao") {
+        multiplicador = -1;
+    }
 
+    const economiaAnos = yearsECO.map(year =>
+        results.investimentoAdicional * multiplicador + (results.economiaMensal * 12 * year)
+    );
 
     const ctx = document.getElementById('tcoChart').getContext('2d');
     const ctx2 = document.getElementById('grafico-economia').getContext('2d');
@@ -352,7 +356,7 @@ function renderTCOChart(results) {
     tcoChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: years,
+            labels: yearsTCO,
             datasets: [
                 {
                     label: 'Ar Conforto',
@@ -428,7 +432,7 @@ function renderTCOChart(results) {
     economiaInstance = new Chart(ctx2, {
         type: 'bar',
         data: {
-            labels: years,
+            labels: yearsECO,
             datasets: [
                 {
                     data: economiaAnos,

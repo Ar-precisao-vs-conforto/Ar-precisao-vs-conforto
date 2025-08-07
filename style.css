@@ -734,7 +734,7 @@ header img {
 
     #tcoChart,
     #grafico-economia {
-        max-height: 300px;
+        max-height: 400px;
         /* Limita a altura para evitar gráficos muito altos em telas pequenas */
     }
 
@@ -758,7 +758,7 @@ header img {
 
     #tcoChart,
     #grafico-economia {
-        max-height: 250px;
+        max-height: 300px;
     }
 
     .chart-container h2 {
