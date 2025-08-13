@@ -12,10 +12,10 @@ const FATOR_TROCA_PAREDES = 8.8;
 const WATTS_PARA_BTU = 3.412;
 const FATOR_SENSIBILIDADE_CONFORTO = 0.65;
 const FATOR_SENSIBILIDADE_PRECISAO = 0.90;
-const CUSTO_MANUTENCAO_MENSAL_CONFORTO = 250; // Valor por equipamento
-const CUSTO_MANUTENCAO_MENSAL_PRECISAO = 800; // Valor por equipamento
-const CUSTO_INSTALACAO_CONFORTO = 1200;
-const CUSTO_INSTALACAO_PRECISAO = 3800;
+const CUSTO_MANUTENCAO_MENSAL_CONFORTO = 900; // Valor por equipamento
+const CUSTO_MANUTENCAO_MENSAL_PRECISAO = 1500; // Valor por equipamento
+const CUSTO_INSTALACAO_CONFORTO = 1500;
+const CUSTO_INSTALACAO_PRECISAO = 6000;
 
 let tcoChartInstance = null;
 let economiaInstance = null;
@@ -44,7 +44,7 @@ function getInputs() {
         peDireito: parseFloat(document.getElementById('pe-direito').value) || 0,
         equipamentosTI: parseFloat(document.getElementById('equipamentos-ti').value) || 0,
         pessoas: document.getElementById('pessoas').value === '' ? null : parseInt(document.getElementById('pessoas').value, 10),
-        custoEnergia: parseFloat(document.getElementById('custo-energia').value) || 0.55,
+        custoEnergia: parseFloat(document.getElementById('custo-energia').value) || 0.75,
         horasDia: parseFloat(document.getElementById('horas-dia').value) || 0,
         diasMes: parseFloat(document.getElementById('dias-mes').value) || 0,
     };
@@ -250,8 +250,8 @@ function calculateFinalResults(geminiData, inputs) {
     const investimentoAdicional = investPrecisao - investConforto;
 
     // Consumo de Energia (kW)            
-    // Conforto: 1/3 das máquinas funcionam por vez - VERIFICAR CALCULO CORRETO DE ACORDO COM DIMENSIONAMENTO
-    const consumoHorarioConforto = (ArConforto.quantidade / 3) * (ArConforto.potencia_btus / WATTS_PARA_BTU / 1000);
+    // Conforto: 1/2 das máquinas funcionam por vez - VERIFICAR CALCULO CORRETO DE ACORDO COM DIMENSIONAMENTO
+    const consumoHorarioConforto = (ArConforto.quantidade / 2) * (ArConforto.potencia_btus / WATTS_PARA_BTU / 1000);
     // Precisão: N máquinas funcionam (N = total - 1)
     const consumoHorarioPrecisao = (ArPrecisao.quantidade - 1) * (ArPrecisao.potencia_btus / WATTS_PARA_BTU / 1000);
 
@@ -512,7 +512,35 @@ async function calcularTCO() {
         const thermalLoad = calculateThermalLoad(inputs);
         const prompt = createPrompt(thermalLoad);
 
-        const response = await fetch(API_URL, {
+        const conforto = dimensionamentoConforto(thermalLoad);
+        const precisao = dimensionamentoPrecisao(thermalLoad);
+
+        const response = {
+            candidates: [
+                {
+                    content: {
+                        parts: [
+                            {
+                                text: JSON.stringify({
+                                    "ArConforto": {
+                                        "quantidade": conforto.qtd,
+                                        "potencia_btus": conforto.potencia,
+                                        "valor_unitario": conforto.valor
+                                    },
+                                    "ArPrecisao": {
+                                        "quantidade": precisao.qtd,
+                                        "potencia_btus": precisao.potencia,
+                                        "valor_unitario": precisao.valor
+                                    }
+                                })
+                            }
+                        ]
+                    }
+                }
+            ]
+        };
+
+        /*const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -520,9 +548,9 @@ async function calcularTCO() {
 
         if (!response.ok) {
             throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
-        }
+        }*/
 
-        const data = await response.json();
+        const data = response;
         const rawText = data.candidates[0].content.parts[0].text;
         const cleanedText = rawText.replace(/```json\n?|```/g, '');
         const geminiData = JSON.parse(cleanedText);
@@ -640,3 +668,76 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+function dimensionamentoConforto(thermalLoad) {
+
+    const potencias = new Array(18000, 24000, 30000, 36000, 48000, 57000);
+    const valores = new Array(3200, 4600, 5200, 6800, 7500, 8600);
+
+    let potencia;
+    let qtd = 0;
+    let valor;
+
+    let dimenssionado = false;
+    while (!dimenssionado) {
+
+        qtd++;
+
+        let i = 0;
+        while (i < 6) {
+            if (potencias[i] * qtd >= thermalLoad.potenciaArConforto) {
+                potencia = potencias[i];
+                valor = valores[i];
+                i = 6;
+                dimenssionado = true;
+            }
+            i++;
+        }
+    }
+
+    //para trabalhar alternado de 6 em 6 horas
+    qtd = qtd * 2;
+
+    return {
+        potencia,
+        qtd,
+        valor,
+    }
+}
+
+
+function dimensionamentoPrecisao(thermalLoad) {
+
+    const potencias = new Array(35800, 64800, 68200, 109100, 119400);
+    const valores = new Array(32000, 46000, 52000, 68000, 7500, 86000);
+
+
+    let potencia;
+    let qtd = 0;
+    let valor;
+
+    let dimenssionado = false;
+    while (!dimenssionado) {
+
+        qtd++;
+
+        let i = 0;
+        while (i < 4) {
+            if (potencias[i] * qtd >= thermalLoad.potenciaArPrecisao) {
+                potencia = potencias[i];
+                valor = valores[i];
+                i = 4;
+                dimenssionado = true;
+            }
+            i++;
+        }
+    }
+
+    //redundancia
+    qtd = qtd + 1;
+
+    return {
+        potencia,
+        qtd,
+        valor,
+    }
+}
