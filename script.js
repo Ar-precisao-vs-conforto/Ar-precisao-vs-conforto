@@ -1,9 +1,3 @@
-// --- CONFIGURAÇÕES E CONSTANTES ---
-// ATENÇÃO: A CHAVE DE API NÃO DEVE FICAR AQUI EM PRODUÇÃO!
-// Idealmente, esta chamada deve ser feita por um backend.
-const API_KEY = 'AIzaSyCAibA7S74hsrAgufalOZ_djkP_J5uijno'; // Substitua pela sua chave, mas lembre-se do risco de segurança.
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-
 // Fatores de cálculo
 const WATTS_POR_PESSOA = 175;
 const WATTS_ILUMINACAO_POR_M2 = 20;
@@ -78,18 +72,17 @@ function updateUI(thermalLoad, geminiData, results) {
     const formatCalculos = (value) => value.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
     // Aba Cálculos  
-    document.getElementById('carga-termica').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1.2 / 1000) + ' Kw';
-    document.getElementById('carga-seguranca').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1000) + ' Kw';
+    document.getElementById('carga-termica').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts/ 1000) + ' Kw';
     document.getElementById('carga-conforto').textContent = formatCalculos(thermalLoad.potenciaArConforto) + ' Btus';
     document.getElementById('carga-precisao').textContent = formatCalculos(thermalLoad.potenciaArPrecisao) + ' Btus';
 
     document.getElementById('quantidade-conforto').textContent = formatCalculos(ArConforto.quantidade) + ' Equipamentos';
     document.getElementById('capacidade-conforto').textContent = formatCalculos(ArConforto.potencia_btus) + ' Btus';
-    document.getElementById('potencia-media-conforto').textContent = formatCalculos(ArConforto.potencia_btus / WATTS_PARA_BTU) + ' Watts';
+    document.getElementById('potencia-media-conforto').textContent = formatCalculosVirgula(ArConforto.potencia_btus * ArConforto.quantidade / 2 / WATTS_PARA_BTU/1000) + ' Kw';
 
     document.getElementById('quantidade-precisao').textContent = formatCalculos(ArPrecisao.quantidade) + ' Equipamentos';
     document.getElementById('capacidade-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus) + ' Btus';
-    document.getElementById('potencia-media-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus / WATTS_PARA_BTU) + ' Watts';
+    document.getElementById('potencia-media-precisao').textContent = formatCalculosVirgula((ArPrecisao.potencia_btus * (ArPrecisao.quantidade-1)) / WATTS_PARA_BTU/1000) + ' Kw';
 
     // Aba Resultados
     document.getElementById('equipamentos-conforto').textContent = formatCurrency(results.investEquipamentosConforto);
@@ -170,7 +163,7 @@ function calculateThermalLoad(inputs) {
     const cargaTrocaAr = (inputs.area * inputs.peDireito) * FATOR_TROCA_AR;
     const cargaTrocaParedes = ((Math.sqrt(inputs.area) * inputs.peDireito * 4) + inputs.area) * FATOR_TROCA_PAREDES;
 
-    const cargaTermicaWatts = (cargaTI + cargaPessoas + cargaIluminacao + cargaTrocaAr + cargaTrocaParedes) * 1.2;
+    const cargaTermicaWatts = (cargaTI + cargaPessoas + cargaIluminacao + cargaTrocaAr + cargaTrocaParedes);
     const cargaTermicaBTUS = (cargaTermicaWatts * WATTS_PARA_BTU);
 
     return {
@@ -178,49 +171,6 @@ function calculateThermalLoad(inputs) {
         potenciaArConforto: Math.ceil(cargaTermicaBTUS / FATOR_SENSIBILIDADE_CONFORTO / 1000) * 1000,
         potenciaArPrecisao: Math.ceil(cargaTermicaBTUS / FATOR_SENSIBILIDADE_PRECISAO / 1000) * 1000,
     };
-}
-
-/**
- * Cria o prompt para a API Gemini com base nos dados de carga térmica.
- * @param {object} loadData - Dados da carga térmica calculada.
- * @returns {string} O prompt formatado em JSON.
- */
-function createPrompt(loadData) {
-    return `Você é um Engenheiro de Vendas Sênior de uma grande integradora de soluções de TI, especializado em dimensionar e cotar projetos de climatização para Data Centers no mercado brasileiro. Sua principal habilidade é a precisão técnica e comercial.
-                **Missão Crítica:**
-                Analise a carga térmica fornecida e dimensione as duas soluções de climatização (Conforto e Precisão) com o máximo de realismo para o mercado brasileiro atual. Sua resposta final deve ser **ÚNICA E EXCLUSIVAMENTE** um objeto JSON válido, sem nenhum texto ou formatação extra.
-                ---
-                **REGRAS E RACIOCÍNIO OBRIGATÓRIOS:**
-                **1. Análise para Ar-Condicionado de Conforto:**
-                    a. **Cálculo de Capacidade:** Com a "Carga Térmica para Ar Conforto" fornecida, selecione o modelo de ar condicionado de conforto padrão (18000, 24000, 30000, 36000, 48000, 57000 BTUs). Use a menor quantidade de máquinas possível, priorizando máquinas mais potentes para atender a carga.
-                    b. **Cálculo de Quantidade (24/7):** Determine a quantidade de máquinas necessárias para cobrir a carga térmica. Em seguida, **triplique** esse número para garantir a operação 24/7 em regime de revezamento. Essa é a quantidade final.
-                    c. **Pesquisa de Preço Realista:** Com base no modelo de BTU/h escolhido, pesquise em sua base de dados interna o preço unitário **realista** de um equipamento de **marca de primeira linha (ex: Fujitsu, Daikin, LG Inverter)** vendido por distribuidores especializados no Brasil. O valor deve ser numérico, sem "R$".                    
-                    d. **Exemplo de dimensionamento:** carga térmica de 17000 BTUS, é necessário 1 ar de 18000, logo para trabalha 24/7 devem ter 3 ar de 18000 btus
-                    e. verifique se o valor pesquisado está proximos dos valores médios de mercado, um boa aproixmação é 165.56x + 339.17, onde x é a poteencia em BTUS do ar condicionado.
-                **2. Análise para Ar-Condicionado de Precisão:**
-                    a. **Cálculo de Quantidade e Redundância (N+1):** Com a "Carga Térmica para Ar Precisão" fornecida, determine a menor quantidade de máquinas necessárias para cobrir a carga. Em seguida, **adicione uma (1) unidade** para redundância (N+1). Essa é a quantidade final. Use a menor quantidade de máquinas possível, priorizando máquinas mais potentes para atender a carga.
-                    b. **Cálculo de Potência Individual:** Divida a carga térmica total pela quantidade de máquinas operantes (N) para obter a potência individual de cada equipamento.
-                    c. **Pesquisa de Preço Realista:** Com base na potência individual calculada, pesquise em sua base de dados o preço unitário **realista** de um equipamento de precisão de **marcas renomadas (ex: Vertiv e Rittal)**.
-                    
-                ---
-                **DADOS DE ENTRADA PARA ANÁLISE:**
-                - Carga Térmica para Ar Conforto: ${loadData.potenciaArConforto} BTU/h
-                - Carga Térmica para Ar Precisão: ${loadData.potenciaArPrecisao} BTU/h
-                ---
-                **FORMATO DE SAÍDA (OBRIGATÓRIO E SEM EXCEÇÕES):**
-                Responda apenas com o objeto JSON abaixo. Não adicione comentários, explicações ou a formatação markdown \\\json.
-                {
-                    "ArConforto": {
-                        "quantidade": <numero>,
-                        "potencia_btus": <numero>,
-                        "valor_unitario": <numero>
-                    },
-                    "ArPrecisao": {
-                        "quantidade": <numero>,
-                        "potencia_btus": <numero>,
-                        "valor_unitario": <numero>
-                    }
-                }`;
 }
 
 /**
@@ -235,11 +185,6 @@ function calculateFinalResults(geminiData, inputs) {
 
     const investEquipamentosConforto = ArConforto.quantidade * ArConforto.valor_unitario;
     const investEquipamentosPrecisao = ArPrecisao.quantidade * ArPrecisao.valor_unitario;
-
-    //VERIFICAR NECESSIDADE DE "FILTRA RESPOSTA DA IA"
-    /* if (investEquipamentosPrecisao < (investEquipamentosConforto * 2.5) || investEquipamentosPrecisao > (investEquipamentosConforto * 4)) {
-         investEquipamentosPrecisao = investEquipamentosConforto * 3;
-    }*/
 
     const investInstalacaoConforto = ArConforto.quantidade * CUSTO_INSTALACAO_CONFORTO;
     const investInstalacaoPrecisao = ArPrecisao.quantidade * CUSTO_INSTALACAO_PRECISAO;
@@ -510,7 +455,6 @@ async function calcularTCO() {
 
     try {
         const thermalLoad = calculateThermalLoad(inputs);
-        const prompt = createPrompt(thermalLoad);
 
         const conforto = dimensionamentoConforto(thermalLoad);
         const precisao = dimensionamentoPrecisao(thermalLoad);
@@ -539,16 +483,6 @@ async function calcularTCO() {
                 }
             ]
         };
-
-        /*const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-        });
-
-        if (!response.ok) {
-            throw new Error(`Erro na API: ${response.status} ${response.statusText}`);
-        }*/
 
         const data = response;
         const rawText = data.candidates[0].content.parts[0].text;
@@ -707,8 +641,8 @@ function dimensionamentoConforto(thermalLoad) {
 
 function dimensionamentoPrecisao(thermalLoad) {
 
-    const potencias = new Array(35800, 64800, 68200, 109100, 119400);
-    const valores = new Array(32000, 46000, 52000, 68000, 7500, 86000);
+    const potencias = new Array(35800, 64800, 68200, 92000, 109100, 119400);
+    const valores = new Array(32000, 46000, 52000, 68000, 75000, 86000);
 
 
     let potencia;
@@ -721,11 +655,11 @@ function dimensionamentoPrecisao(thermalLoad) {
         qtd++;
 
         let i = 0;
-        while (i < 4) {
+        while (i < 5) {
             if (potencias[i] * qtd >= thermalLoad.potenciaArPrecisao) {
                 potencia = potencias[i];
                 valor = valores[i];
-                i = 4;
+                i = 5;
                 dimenssionado = true;
             }
             i++;
