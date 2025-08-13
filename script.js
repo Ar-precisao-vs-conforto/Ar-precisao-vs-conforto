@@ -7,9 +7,12 @@ const WATTS_PARA_BTU = 3.412;
 const FATOR_SENSIBILIDADE_CONFORTO = 0.65;
 const FATOR_SENSIBILIDADE_PRECISAO = 0.90;
 const CUSTO_MANUTENCAO_MENSAL_CONFORTO = 900; // Valor por equipamento
-const CUSTO_MANUTENCAO_MENSAL_PRECISAO = 1500; // Valor por equipamento
-const CUSTO_INSTALACAO_CONFORTO = 1500;
-const CUSTO_INSTALACAO_PRECISAO = 6000;
+const CUSTO_MANUTENCAO_MENSAL_PRECISAO = 1100; // Valor por equipamento
+const CUSTO_INSTALACAO_CONFORTO = 2500;
+const CUSTO_INSTALACAO_PRECISAO = 20000;
+const CUSTO_MATERIAIS_CONFORTO = 2000;
+const CUSTO_MATERIAIS_PRECISAO = 15000;
+
 
 let tcoChartInstance = null;
 let economiaInstance = null;
@@ -72,20 +75,20 @@ function updateUI(thermalLoad, geminiData, results) {
     const formatCalculos = (value) => value.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
     // Aba Cálculos  
-    document.getElementById('carga-termica').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts/ 1000) + ' Kw';
-    document.getElementById('carga-conforto').textContent = formatCalculos(thermalLoad.potenciaArConforto) + ' Btus';
-    document.getElementById('carga-precisao').textContent = formatCalculos(thermalLoad.potenciaArPrecisao) + ' Btus';
+    document.getElementById('carga-termica').textContent = formatCalculosVirgula(thermalLoad.cargaTermicaWatts / 1000) + ' Kw';
+    document.getElementById('carga-btus').textContent = formatCalculos(thermalLoad.cargaTermicaWatts * WATTS_PARA_BTU) + ' Btus';
 
     document.getElementById('quantidade-conforto').textContent = formatCalculos(ArConforto.quantidade) + ' Equipamentos';
     document.getElementById('capacidade-conforto').textContent = formatCalculos(ArConforto.potencia_btus) + ' Btus';
-    document.getElementById('potencia-media-conforto').textContent = formatCalculosVirgula(ArConforto.potencia_btus * ArConforto.quantidade / 2 / WATTS_PARA_BTU/1000) + ' Kw';
+    document.getElementById('potencia-media-conforto').textContent = formatCalculosVirgula(ArConforto.potencia_btus * ArConforto.quantidade / 2 / WATTS_PARA_BTU / 1000) + ' Kw';
 
     document.getElementById('quantidade-precisao').textContent = formatCalculos(ArPrecisao.quantidade) + ' Equipamentos';
     document.getElementById('capacidade-precisao').textContent = formatCalculos(ArPrecisao.potencia_btus) + ' Btus';
-    document.getElementById('potencia-media-precisao').textContent = formatCalculosVirgula((ArPrecisao.potencia_btus * (ArPrecisao.quantidade-1)) / WATTS_PARA_BTU/1000) + ' Kw';
+    document.getElementById('potencia-media-precisao').textContent = formatCalculosVirgula((ArPrecisao.potencia_btus * (ArPrecisao.quantidade - 1)) / WATTS_PARA_BTU / 1000) + ' Kw';
 
     // Aba Resultados
     document.getElementById('equipamentos-conforto').textContent = formatCurrency(results.investEquipamentosConforto);
+    document.getElementById('materiais-conforto').textContent = formatCurrency(results.investInfraConforto);    
     document.getElementById('instalacao-conforto').textContent = formatCurrency(results.investInstalacaoConforto);
     document.getElementById('invest-conforto').textContent = formatCurrency(results.investConforto);
     document.getElementById('energia-conforto').textContent = formatCurrency(results.custoMensalEnergiaConforto);
@@ -93,6 +96,7 @@ function updateUI(thermalLoad, geminiData, results) {
     document.getElementById('custo-mensal-conforto').textContent = formatCurrency(results.custoMensalConforto);
 
     document.getElementById('equipamentos-precisao').textContent = formatCurrency(results.investEquipamentosPrecisao);
+    document.getElementById('materiais-precisao').textContent = formatCurrency(results.investInfraPrecisao); 
     document.getElementById('instalacao-precisao').textContent = formatCurrency(results.investInstalacaoPrecisao);
     document.getElementById('invest-precisao').textContent = formatCurrency(results.investPrecisao);
     document.getElementById('energia-precisao').textContent = formatCurrency(results.custoMensalEnergiaPrecisao);
@@ -168,8 +172,8 @@ function calculateThermalLoad(inputs) {
 
     return {
         cargaTermicaWatts,
-        potenciaArConforto: Math.ceil(cargaTermicaBTUS / FATOR_SENSIBILIDADE_CONFORTO / 1000) * 1000,
-        potenciaArPrecisao: Math.ceil(cargaTermicaBTUS / FATOR_SENSIBILIDADE_PRECISAO / 1000) * 1000,
+        potenciaArConforto: Math.ceil(cargaTermicaBTUS / 1000) * 1000,
+        potenciaArPrecisao: Math.ceil(cargaTermicaBTUS / 1000) * 1000,
     };
 }
 
@@ -186,19 +190,20 @@ function calculateFinalResults(geminiData, inputs) {
     const investEquipamentosConforto = ArConforto.quantidade * ArConforto.valor_unitario;
     const investEquipamentosPrecisao = ArPrecisao.quantidade * ArPrecisao.valor_unitario;
 
+    const investInfraConforto = ArConforto.quantidade * CUSTO_MATERIAIS_CONFORTO;
+    const investInfraPrecisao = ArPrecisao.quantidade * CUSTO_MATERIAIS_PRECISAO;
+
     const investInstalacaoConforto = ArConforto.quantidade * CUSTO_INSTALACAO_CONFORTO;
     const investInstalacaoPrecisao = ArPrecisao.quantidade * CUSTO_INSTALACAO_PRECISAO;
 
     // Investimento
-    const investConforto = investEquipamentosConforto + investInstalacaoConforto;
-    const investPrecisao = investEquipamentosPrecisao + investInstalacaoPrecisao;
+    const investConforto = investEquipamentosConforto + investInfraConforto + investInstalacaoConforto;
+    const investPrecisao = investEquipamentosPrecisao + investInfraPrecisao + investInstalacaoPrecisao;
     const investimentoAdicional = investPrecisao - investConforto;
 
     // Consumo de Energia (kW)            
-    // Conforto: 1/2 das máquinas funcionam por vez - VERIFICAR CALCULO CORRETO DE ACORDO COM DIMENSIONAMENTO
     const consumoHorarioConforto = (ArConforto.quantidade / 2) * (ArConforto.potencia_btus / WATTS_PARA_BTU / 1000);
-    // Precisão: N máquinas funcionam (N = total - 1)
-    const consumoHorarioPrecisao = (ArPrecisao.quantidade - 1) * (ArPrecisao.potencia_btus / WATTS_PARA_BTU / 1000);
+    const consumoHorarioPrecisao = (ArPrecisao.quantidade - 1) * (ArPrecisao.potencia_btus * 0.47 / WATTS_PARA_BTU / 1000);
 
     // Custo Mensal com Energia
     const horasMensais = inputs.horasDia * inputs.diasMes;
@@ -234,6 +239,8 @@ function calculateFinalResults(geminiData, inputs) {
     return {
         investEquipamentosConforto,
         investEquipamentosPrecisao,
+        investInfraConforto,
+        investInfraPrecisao,
         investInstalacaoConforto,
         investInstalacaoPrecisao,
         investConforto,
@@ -261,7 +268,7 @@ function renderTCOChart(results) {
 
     const interseccaoTCO = (results.investPrecisao - results.investConforto) / (results.custoMensalConforto * 12 - results.custoMensalPrecisao * 12);
     const tempoTCO = interseccaoTCO * 2 + 1;
-    const tempoECO = 10;
+    const tempoECO = 15;
 
     const yearsTCO = Array.from({ length: interseccaoTCO > 0 ? (tempoTCO + 1) : 11 }, (_, i) => i);
     const yearsECO = Array.from({ length: tempoECO + 1 }, (_, i) => i);
@@ -605,7 +612,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function dimensionamentoConforto(thermalLoad) {
 
     const potencias = new Array(18000, 24000, 30000, 36000, 48000, 57000);
-    const valores = new Array(3200, 4600, 5200, 6800, 7500, 8600);
+    const valores = new Array(3200, 4600, 5200, 6800, 8100, 9600);
 
     let potencia;
     let qtd = 0;
@@ -641,8 +648,8 @@ function dimensionamentoConforto(thermalLoad) {
 
 function dimensionamentoPrecisao(thermalLoad) {
 
-    const potencias = new Array(35800, 64800, 68200, 92000, 109100, 119400);
-    const valores = new Array(32000, 46000, 52000, 68000, 75000, 86000);
+    const potencias = new Array(10000, 21000, 51000, 70000);
+    const valores = new Array(25000, 60000, 120000, 150000);
 
 
     let potencia;
