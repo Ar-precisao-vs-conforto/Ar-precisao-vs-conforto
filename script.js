@@ -6,8 +6,8 @@ const FATOR_TROCA_PAREDES = 8.8;
 const WATTS_PARA_BTU = 3.412;
 const FATOR_SENSIBILIDADE_CONFORTO = 0.65;
 const FATOR_SENSIBILIDADE_PRECISAO = 0.90;
-const CUSTO_MANUTENCAO_MENSAL_CONFORTO = 900; // Valor por equipamento
-const CUSTO_MANUTENCAO_MENSAL_PRECISAO = 1100; // Valor por equipamento
+const CUSTO_MANUTENCAO_MENSAL_CONFORTO = 0.03; // Valor por BTU
+const CUSTO_MANUTENCAO_MENSAL_PRECISAO = 0.0175; // Valor por BTU
 const CUSTO_INSTALACAO_CONFORTO = 2500;
 const CUSTO_INSTALACAO_PRECISAO = 20000;
 const CUSTO_MATERIAIS_CONFORTO = 2000;
@@ -88,7 +88,7 @@ function updateUI(thermalLoad, geminiData, results) {
 
     // Aba Resultados
     document.getElementById('equipamentos-conforto').textContent = formatCurrency(results.investEquipamentosConforto);
-    document.getElementById('materiais-conforto').textContent = formatCurrency(results.investInfraConforto);    
+    document.getElementById('materiais-conforto').textContent = formatCurrency(results.investInfraConforto);
     document.getElementById('instalacao-conforto').textContent = formatCurrency(results.investInstalacaoConforto);
     document.getElementById('invest-conforto').textContent = formatCurrency(results.investConforto);
     document.getElementById('energia-conforto').textContent = formatCurrency(results.custoMensalEnergiaConforto);
@@ -96,7 +96,7 @@ function updateUI(thermalLoad, geminiData, results) {
     document.getElementById('custo-mensal-conforto').textContent = formatCurrency(results.custoMensalConforto);
 
     document.getElementById('equipamentos-precisao').textContent = formatCurrency(results.investEquipamentosPrecisao);
-    document.getElementById('materiais-precisao').textContent = formatCurrency(results.investInfraPrecisao); 
+    document.getElementById('materiais-precisao').textContent = formatCurrency(results.investInfraPrecisao);
     document.getElementById('instalacao-precisao').textContent = formatCurrency(results.investInstalacaoPrecisao);
     document.getElementById('invest-precisao').textContent = formatCurrency(results.investPrecisao);
     document.getElementById('energia-precisao').textContent = formatCurrency(results.custoMensalEnergiaPrecisao);
@@ -173,7 +173,7 @@ function calculateThermalLoad(inputs) {
     return {
         cargaTermicaWatts,
         potenciaArConforto: Math.ceil(cargaTermicaBTUS / 1000) * 1000,
-        potenciaArPrecisao: Math.ceil(cargaTermicaBTUS / 1000) * 1000,
+        potenciaArPrecisao: Math.ceil(cargaTermicaBTUS * 0.8 / 1000) * 1000,
     };
 }
 
@@ -184,13 +184,14 @@ function calculateThermalLoad(inputs) {
  * @param {object} inputs - Dados de entrada do usuário.
  * @returns {object} Um objeto contendo todos os resultados financeiros e de TCO.
  */
-function calculateFinalResults(geminiData, inputs) {
+function calculateFinalResults(geminiData, inputs, cargaTermica) {
     const { ArConforto, ArPrecisao } = geminiData;
+    const fatorDeConsumo = cargaTermica.potenciaArPrecisao / (ArPrecisao.potencia_btus * (ArPrecisao.quantidade - 1));
 
     const investEquipamentosConforto = ArConforto.quantidade * ArConforto.valor_unitario;
     const investEquipamentosPrecisao = ArPrecisao.quantidade * ArPrecisao.valor_unitario;
 
-    const investInfraConforto = ArConforto.quantidade * CUSTO_MATERIAIS_CONFORTO;
+    const investInfraConforto = (ArConforto.quantidade * CUSTO_MATERIAIS_CONFORTO) + parseInt(ArConforto.quantidade/2) *15000;
     const investInfraPrecisao = ArPrecisao.quantidade * CUSTO_MATERIAIS_PRECISAO;
 
     const investInstalacaoConforto = ArConforto.quantidade * CUSTO_INSTALACAO_CONFORTO;
@@ -203,7 +204,11 @@ function calculateFinalResults(geminiData, inputs) {
 
     // Consumo de Energia (kW)            
     const consumoHorarioConforto = (ArConforto.quantidade / 2) * (ArConforto.potencia_btus / WATTS_PARA_BTU / 1000);
-    const consumoHorarioPrecisao = (ArPrecisao.quantidade - 1) * (ArPrecisao.potencia_btus * 0.47 / WATTS_PARA_BTU / 1000);
+    const consumoHorarioPrecisao = (ArPrecisao.quantidade - 1) * (ArPrecisao.potencia_btus * fatorDeConsumo * 0.5 / WATTS_PARA_BTU / 1000);
+
+    console.log('Quantidade = ' + (ArPrecisao.quantidade - 1));
+    console.log('potencia_btus = ' + ArPrecisao.potencia_btus);
+    console.log('Fator de consumo = ' + fatorDeConsumo);
 
     // Custo Mensal com Energia
     const horasMensais = inputs.horasDia * inputs.diasMes;
@@ -211,8 +216,8 @@ function calculateFinalResults(geminiData, inputs) {
     const custoMensalEnergiaPrecisao = consumoHorarioPrecisao * horasMensais * inputs.custoEnergia;
 
     // Custo Mensal com Manutenção
-    const custoMensalManutencaoConforto = ArConforto.quantidade * CUSTO_MANUTENCAO_MENSAL_CONFORTO;
-    const custoMensalManutencaoPrecisao = ArPrecisao.quantidade * CUSTO_MANUTENCAO_MENSAL_PRECISAO;
+    const custoMensalManutencaoConforto = ArConforto.quantidade * ArConforto.potencia_btus * CUSTO_MANUTENCAO_MENSAL_CONFORTO;
+    const custoMensalManutencaoPrecisao = ArPrecisao.quantidade * ArPrecisao.potencia_btus * CUSTO_MANUTENCAO_MENSAL_PRECISAO;
 
     // Custos mensais
     const custoMensalConforto = custoMensalEnergiaConforto + custoMensalManutencaoConforto;
@@ -496,11 +501,15 @@ async function calcularTCO() {
         const cleanedText = rawText.replace(/```json\n?|```/g, '');
         const geminiData = JSON.parse(cleanedText);
 
-        const finalResults = calculateFinalResults(geminiData, inputs);
+        const finalResults = calculateFinalResults(geminiData, inputs, thermalLoad);
         await new Promise(resolve => setTimeout(resolve, 2000)); // Simula um atraso para UX
+
+        gerarGraficoPaybackPorCargaTI();
 
         renderTCOChart(finalResults);
         updateUI(thermalLoad, geminiData, finalResults);
+
+
         showTab('calculos');
         setTimeout(rolarParaAbas, 300);
     } catch (error) {
@@ -648,9 +657,7 @@ function dimensionamentoConforto(thermalLoad) {
 
 function dimensionamentoPrecisao(thermalLoad) {
 
-    const potencias = new Array(10000, 21000, 51000, 70000);
-    const valores = new Array(25000, 60000, 120000, 150000);
-
+    const potencias = new Array(10000, 15000, 21000, 40000, 51000, 70000);
 
     let potencia;
     let qtd = 0;
@@ -662,11 +669,11 @@ function dimensionamentoPrecisao(thermalLoad) {
         qtd++;
 
         let i = 0;
-        while (i < 5) {
+        while (i < 6) {
             if (potencias[i] * qtd >= thermalLoad.potenciaArPrecisao) {
                 potencia = potencias[i];
-                valor = valores[i];
-                i = 5;
+                valor = 42651 * Math.log(potencia) - 329404;
+                i = 6;
                 dimenssionado = true;
             }
             i++;
@@ -681,4 +688,108 @@ function dimensionamentoPrecisao(thermalLoad) {
         qtd,
         valor,
     }
+}
+
+function plotarGraficoPayback(cargasTI, paybacks) {
+    const ctx = document.getElementById('grafico-payback-ti').getContext('2d');
+
+    if (window.paybackChartInstance) {
+        window.paybackChartInstance.destroy();
+    }
+
+    window.paybackChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: cargasTI,
+            datasets: [{
+                label: 'Payback (anos)',
+                data: paybacks,
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.3,
+                pointRadius: 1,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Payback vs Carga de TI (kW)'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `Payback: ${context.raw.toFixed(2)} anos`;
+                        },
+                        title: function (context) {
+                            return `Carga TI: ${context[0].label} kW`;
+                        }
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Carga de TI (kW)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Payback (anos)'
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+
+async function gerarGraficoPaybackPorCargaTI() {
+    const paybacks = [];
+    const cargasTI = [];
+
+    for (let cargaTI_kW = 1; cargaTI_kW <= 100; cargaTI_kW++) {
+        const inputs = {
+            area: 20, // você pode ajustar
+            peDireito: 3,
+            equipamentosTI: cargaTI_kW,
+            pessoas: 0,
+            custoEnergia: 0.75,
+            horasDia: 24,
+            diasMes: 30,
+        };
+
+        const thermalLoad = calculateThermalLoad(inputs);
+        const conforto = dimensionamentoConforto(thermalLoad);
+        const precisao = dimensionamentoPrecisao(thermalLoad);
+
+        const geminiData = {
+            ArConforto: {
+                quantidade: conforto.qtd,
+                potencia_btus: conforto.potencia,
+                valor_unitario: conforto.valor
+            },
+            ArPrecisao: {
+                quantidade: precisao.qtd,
+                potencia_btus: precisao.potencia,
+                valor_unitario: precisao.valor
+            }
+        };
+
+        const results = calculateFinalResults(geminiData, inputs, thermalLoad);
+
+        cargasTI.push(cargaTI_kW);
+        paybacks.push(results.payback);
+    }
+
+    plotarGraficoPayback(cargasTI, paybacks);
 }
