@@ -1,6 +1,6 @@
 // Fatores de cálculo
 const WATTS_POR_PESSOA = 175;
-const WATTS_ILUMINACAO_POR_M2 = 20;
+const WATTS_ILUMINACAO_POR_M2 = 0;
 const FATOR_TROCA_AR = 3.025 + 3.01;
 const FATOR_TROCA_PAREDES = 8.8;
 const WATTS_PARA_BTU = 3.412;
@@ -173,7 +173,7 @@ function calculateThermalLoad(inputs) {
     return {
         cargaTermicaWatts,
         potenciaArConforto: Math.ceil(cargaTermicaBTUS / 1000) * 1000,
-        potenciaArPrecisao: Math.ceil(cargaTermicaBTUS * 0.8 / 1000) * 1000,
+        potenciaArPrecisao: Math.ceil(cargaTermicaBTUS * 0.7 / 1000) * 1000,
     };
 }
 
@@ -191,7 +191,9 @@ function calculateFinalResults(geminiData, inputs, cargaTermica) {
     const investEquipamentosConforto = ArConforto.quantidade * ArConforto.valor_unitario;
     const investEquipamentosPrecisao = ArPrecisao.quantidade * ArPrecisao.valor_unitario;
 
-    const investInfraConforto = (ArConforto.quantidade * CUSTO_MATERIAIS_CONFORTO) + parseInt(ArConforto.quantidade/2) *15000;
+    const comflex = parseInt(ArConforto.quantidade / 2) * 15000;
+
+    const investInfraConforto = (ArConforto.quantidade * CUSTO_MATERIAIS_CONFORTO) + comflex;
     const investInfraPrecisao = ArPrecisao.quantidade * CUSTO_MATERIAIS_PRECISAO;
 
     const investInstalacaoConforto = ArConforto.quantidade * CUSTO_INSTALACAO_CONFORTO;
@@ -206,17 +208,15 @@ function calculateFinalResults(geminiData, inputs, cargaTermica) {
     const consumoHorarioConforto = (ArConforto.quantidade / 2) * (ArConforto.potencia_btus / WATTS_PARA_BTU / 1000);
     const consumoHorarioPrecisao = (ArPrecisao.quantidade - 1) * (ArPrecisao.potencia_btus * fatorDeConsumo * 0.5 / WATTS_PARA_BTU / 1000);
 
-    console.log('Quantidade = ' + (ArPrecisao.quantidade - 1));
-    console.log('potencia_btus = ' + ArPrecisao.potencia_btus);
-    console.log('Fator de consumo = ' + fatorDeConsumo);
-
     // Custo Mensal com Energia
     const horasMensais = inputs.horasDia * inputs.diasMes;
     const custoMensalEnergiaConforto = consumoHorarioConforto * horasMensais * inputs.custoEnergia;
     const custoMensalEnergiaPrecisao = consumoHorarioPrecisao * horasMensais * inputs.custoEnergia;
 
+    const trocaConforto = (investConforto - comflex) / 48;
+
     // Custo Mensal com Manutenção
-    const custoMensalManutencaoConforto = ArConforto.quantidade * ArConforto.potencia_btus * CUSTO_MANUTENCAO_MENSAL_CONFORTO;
+    const custoMensalManutencaoConforto = (ArConforto.quantidade * ArConforto.potencia_btus * CUSTO_MANUTENCAO_MENSAL_CONFORTO) + trocaConforto;
     const custoMensalManutencaoPrecisao = ArPrecisao.quantidade * ArPrecisao.potencia_btus * CUSTO_MANUTENCAO_MENSAL_PRECISAO;
 
     // Custos mensais
