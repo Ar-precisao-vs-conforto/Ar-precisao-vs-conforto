@@ -448,6 +448,111 @@ function renderTCOChart(results) {
     });
 }
 
+const LEAD_COLLECTED_KEY = 'leadCollected';
+const LEAD_COLLECTED_EXPIRATION_DAYS = 2;
+
+/**
+ * Define um cookie com um nome, valor e número de dias de expiração.
+ * @param {string} name - O nome do cookie.
+ * @param {string} value - O valor do cookie.
+ * @param {number} days - O número de dias para o cookie expirar.
+ */
+function setCookie(name, value, days) {
+    const d = new Date();
+    //d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+    d.setTime(d.getTime() + (60 * 1000));
+    const expires = "expires=" + d.toUTCString();
+    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+}
+
+/**
+ * Obtém o valor de um cookie pelo nome.
+ * @param {string} name - O nome do cookie a ser obtido.
+ * @returns {string} O valor do cookie ou uma string vazia se não for encontrado.
+ */
+function getCookie(name) {
+    const cname = name + "=";
+    const decodedCookie = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(cname) === 0) {
+            return c.substring(cname.length, c.length);
+        }
+    }
+    return "";
+}
+
+
+
+/**
+ * Exibe o pop-up de coleta de leads.
+ */
+function showLeadPopup() {
+    document.getElementById('lead-popup').style.display = 'flex';
+}
+
+/**
+ * Oculta o pop-up de coleta de leads.
+ */
+function hideLeadPopup() {
+    document.getElementById('lead-popup').style.display = 'none';
+}
+
+async function handleLeadFormSubmit(event) {
+    // Impede que o form recarregue a página
+    event.preventDefault();     
+    const name = document.getElementById('lead-name').value;
+    const email = document.getElementById('lead-email').value;
+    const phone = document.getElementById('lead-phone').value;
+    const empresa = document.getElementById('lead-empresa').value;
+
+
+    // ==== VALIDAÇÕES ====
+    if (!name) {
+        alert("Por favor, digite seu nome.");
+        return;
+    }
+
+    // Validação simples de e-mail (formato básico)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+        alert("Digite um e-mail válido.");
+        return;
+    }
+
+    // Validação de telefone (apenas números, com mínimo de 8 dígitos)
+    const phoneRegex = /^[0-9]{8,15}$/;
+    if (!phone || !phoneRegex.test(phone)) {
+        alert("Digite um telefone válido).");
+        return;
+    }
+
+    if (!empresa) {
+        alert("Por favor, digite o nome da empresa.");
+        return;
+    }
+
+    const leadData = { name, email, phone, empresa};
+
+    console.log(leadData)
+
+    // processar o lead através dos sistemas configurados
+    
+
+    // Armazena os dados localmente como backup
+    localStorage.setItem('leadData', JSON.stringify(leadData));
+
+    setCookie(LEAD_COLLECTED_KEY, 'true', LEAD_COLLECTED_EXPIRATION_DAYS);
+    hideLeadPopup();
+}
+
+
+
+
 // --- FUNÇÃO PRINCIPAL DE CÁLCULO ---
 
 /**
@@ -455,13 +560,21 @@ function renderTCOChart(results) {
  * Coleta as entradas, calcula a carga térmica, interage com a API Gemini,
  * calcula os resultados finais e atualiza a interface do usuário e os gráficos.
  */
-async function calcularTCO() {
+async function calcularTCO() {   
 
-    if (document.activeElement) document.activeElement.blur();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    
 
     const inputs = getInputs();
     if (!inputs) return;
+
+    if (getCookie(LEAD_COLLECTED_KEY) !== 'true') {
+        showLeadPopup();
+        return;
+    }  
+
+    if (document.activeElement) document.activeElement.blur();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     toggleLoading(true);
 
@@ -556,6 +669,11 @@ function adicionarEventListenersEnter() {
 
 document.addEventListener('DOMContentLoaded', function () {
     adicionarEventListenersEnter();
+
+    if (getCookie(LEAD_COLLECTED_KEY) !== 'true') {
+        showLeadPopup();
+        return;
+    }
 });
 
 

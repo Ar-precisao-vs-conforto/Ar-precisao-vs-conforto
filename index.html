@@ -151,6 +151,32 @@
                 <button class="calculate-btn" onclick="calcularTCO()">Calcular</button>
             </div>
 
+            <!-- Pop-up de Coleta de Leads -->
+            <div id="lead-popup" class="popup-overlay">
+                <div class="popup-content">
+                    <h2>Preencha seus dados para acessar a calculadora</h2>
+                    <form id="lead-form"  onsubmit="handleLeadFormSubmit(event)" novalidate>
+                        <div class="form-group">
+                            <label for="lead-name">Nome:</label>
+                            <input type="text" id="lead-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lead-email">Email:</label>
+                            <input type="email" id="lead-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lead-phone">Telefone:</label>
+                            <input type="tel" id="lead-phone" maxlength="15" placeholder="(99) 99999-9999">
+                        </div>
+                        <div class="form-group">
+                            <label for="lead-phone">Empresa:</label>
+                            <input type="text" id="lead-empresa">
+                        </div>
+                        <button class="submit-lead-btn">Acessar Calculadora</button>
+                    </form>
+                </div>
+            </div>
+
             <!-- Aba: Cálculos -->
             <div id="calculos" class="tab-content">
                 <div class="calculos-content">
