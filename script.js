@@ -536,12 +536,41 @@ async function handleLeadFormSubmit(event) {
         return;
     }
 
-    const leadData = { name, email, phone, empresa};
+    const leadData = {
+        fields: [
+            { name: "firstname", value: name },
+            { name: "email", value: email },
+            { name: "telefone_do_lead", value: phone },
+            { name: "company", value: empresa }
+        ],
+        context: {
+            pageUri: window.location.href,
+            pageName: document.title
+        }
+    };
 
-    console.log(leadData)
+    // 🔑 SEUS IDs DO HUBSPOT (pegos no código de incorporação do form)
+    const PORTAL_ID = "2101665"; // substitua pelo seu portalId
+    const FORM_ID = "3a321109-8f5c-4b7b-882c-9e67ab0d7d94"; // substitua pelo seu formId
 
-    // processar o lead através dos sistemas configurados
+
     
+
+    try {
+        const response = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${PORTAL_ID}/${FORM_ID}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(leadData)
+        });
+
+        if (response.ok) {
+            console.log("Lead enviado com sucesso para o HubSpot!");
+        } else {
+            console.error("Erro ao enviar lead:", await response.text());
+        }
+    } catch (error) {
+        console.error("Erro de rede:", error);
+    }       
 
     // Armazena os dados localmente como backup
     localStorage.setItem('leadData', JSON.stringify(leadData));
